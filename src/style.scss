@@ -1,0 +1,84 @@
+@import 'node_modules/modern-normalize/modern-normalize.css';
+
+html {
+  font-size: 10px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Literata', serif;
+  font-size: 1.6rem;
+}
+
+footer {
+  position: fixed;
+  background: white;
+  bottom: 0;
+  right: 0;
+  width: auto;
+  padding: 1rem;
+  font-size: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  height: 100dvh;
+  align-items: center;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.grid__preview {
+  position: relative;
+  height: 100dvh;
+
+  .svg-wrapper {
+    --_bezel: 2rem;
+    width: calc(100% - var(--_bezel)*2);
+    height: calc(100% - var(--_bezel)*2);
+    object-fit: contain;
+    margin: var(--_bezel);
+    display: flex;
+  }
+  svg {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    outline: 1px solid green;
+    margin: auto;
+  }
+}
+
+.svg-wrapper::after {
+  content: 'Scaled Preview';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  transform-origin: center center;
+  text-wrap: nowrap;
+  font-size: 5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-shadow: 
+  -1px -1px 0 #000, /* Top-left shadow */
+  1px -1px 0 #000,  /* Top-right shadow */
+  -1px 1px 0 #000,  /* Bottom-left shadow */
+  1px 1px 0 #000;   /* Bottom-right shadow */
+  color: white;
+}
+
+.svg-wrapper::before {
+  content: '';
+  background: rgb(0 0 0 / 10%);
+  position: absolute;
+  inset: 0;
+}
+
+
+.config {
+  height: 100dvh;
+  overflow: auto;
+}

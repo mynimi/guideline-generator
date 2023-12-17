@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guideline Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,700;0,7..72,900;1,7..72,300;1,7..72,400;1,7..72,700;1,7..72,900" rel="stylesheet"/>  
+  </head>
+  <body>
+    <div class="grid">
+      <div class="config">
+        <h1 class="config__title">Guideline Maker</h1>
+        <div class="config__intro">
+          <p>This is a Calligraphy Guideline Generator.</p>
+        </div>
+        <button id="downloadButton">Download SVG</button>
+        <button data-download-pdf>Download PDF</button>
+        <div id="formContainer"></div>
+      </div>
+      <div class="grid__preview">
+        <div class="svg-wrapper" data-svg-preview></div>
+      </div>
+    </div>
+    <footer>&copy; halfapx &middot; 2023</footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
