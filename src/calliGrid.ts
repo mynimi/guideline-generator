@@ -125,7 +125,7 @@ export class CalliGrid {
     const buffer = this.options.addAreaBox ? this.options.areaBlockBuffer : 0;
     const xEnd = docWidth - marginRight;
     const height = docHeight - marginTop - marginBottom - buffer * 2;
-    const calliLineHeight = this.calculateCalligraphyLineHeight();
+    const calliLineHeight = this.calculateCalligraphyLineHeight();    
     const lineRepetitions = this.calculateCalliLineRepetitions(height, calliLineHeight);
     const gapBetweenCalliLines = this.calculateCalliLineGap(height, calliLineHeight, lineRepetitions);
     const gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
@@ -138,9 +138,21 @@ export class CalliGrid {
   }
 
   calculateCalligraphyLineHeight(): number {
-    const height =
-      this.options.gridLineXHeight *
-      (this.options.gridLineRatioAscender + this.options.gridLineRatioBase + this.options.gridLineRatioDescender);
+    const normalizationFactor = 1 / this.options.gridLineRatioBase;
+    
+    // Multiply each part of the ratio with the normalizationFactor
+    const xHeight = this.options.gridLineXHeight;
+    const normalizedAscender = this.options.gridLineRatioAscender * normalizationFactor;
+    const normalizedBase = 1;
+    const normalizedDescender = this.options.gridLineRatioDescender * normalizationFactor;
+    console.log(normalizedAscender);
+    console.log(normalizedDescender);
+    
+    // Calculate the sum of the normalized ratios
+    const height = (xHeight * normalizedAscender) + (xHeight * normalizedBase) + (xHeight * normalizedDescender);
+    
+    console.log(height);
+    
     return height;
   }
 
@@ -181,10 +193,11 @@ export class CalliGrid {
     yStart: number,
     calliLineHeight: number
   ): void {
+    const normalizationFactor = 1 / this.options.gridLineRatioBase; // we always want baseRatio = 1, so that x-Height is correctly calculated
     const xHeight = this.options.gridLineXHeight;
-    const ratioAscender = this.options.gridLineRatioAscender;
-    const ratioBase = this.options.gridLineRatioBase;
-    const ratioDescender = this.options.gridLineRatioDescender;
+    const ratioAscender = this.options.gridLineRatioAscender * normalizationFactor;
+    const ratioBase = 1;
+    const ratioDescender = this.options.gridLineRatioDescender * normalizationFactor;    
     const yStartAscenderLine = yStart;
     const yStartXHeightLine = yStartAscenderLine + xHeight * ratioAscender;
     const yStartBaseLine = yStartXHeightLine + xHeight * ratioBase;
@@ -230,14 +243,6 @@ export class CalliGrid {
       parentEl,
       xStart,
       xEnd,
-      yXHeight,
-      this.options.gridLineColor,
-      this.options.gridLineStrokeWidth
-    );
-    this.drawHorizontalLine(
-      parentEl,
-      xStart,
-      xEnd,
       yAscender,
       this.options.gridLineColor,
       this.options.gridLineStrokeWidth
@@ -247,14 +252,6 @@ export class CalliGrid {
 
   drawDescender(parentEl, xStart, xEnd, yBase, yDescender) {
     const ratio = this.options.gridLineRatioDescender;
-    this.drawHorizontalLine(
-      parentEl,
-      xStart,
-      xEnd,
-      yBase,
-      this.options.gridLineColor,
-      this.options.gridLineStrokeWidth
-    );
     this.drawHorizontalLine(
       parentEl,
       xStart,
