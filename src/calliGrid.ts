@@ -83,7 +83,7 @@ export class CalliGrid {
     this.marginTop = this.options.addTitle ? this.options.documentMarginTop + textHeight : this.options.documentMarginTop;
     this.marginBottom = this.options.documentMarginBottom + (textHeight * copyrightSizeFactor);
     
-    this.addCopyright("© grid halfapx.com · generated with guideline maker", copyrightSizeFactor);
+    this.addCopyright("© grid halfapx.com · https://code.halfapx.com/guideline-generator/", copyrightSizeFactor);
     if(this.options.addTitle){
       this.addTitle(this.generateGridName('pretty'));
     }
