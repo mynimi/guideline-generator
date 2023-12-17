@@ -75,7 +75,7 @@ export class CalliGrid {
     this.width = this.options.documentWidth; // these are accessible since the pdf accesses those.
     this.height = this.options.documentHeight; // these are accessible since the pdf accesses those.
     this.svg = this.createDocument(); // public svg so it can be grabbed by pdf
-    this.fontColor = 'rgb(0 0 0 / 50%)';
+    this.fontColor = '#808080';
     const textBuffer = 2;
     const copyrightSizeFactor = 0.7;
     const textHeight = this.options.textFontSize * this.options.textLineHeight + textBuffer;
