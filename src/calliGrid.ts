@@ -29,11 +29,6 @@ export interface CalliGridOptions {
   addTitle?:boolean;
 }
 
-const paperSizes = {
-  a4: { width: 210, height: 297 },
-  letter: { width: 216, height: 279 },
-};
-
 export class CalliGrid {
   public defaults: CalliGridOptions;
   public svg: SVGElement;
@@ -107,31 +102,6 @@ export class CalliGrid {
     const angleLabel = type == 'pretty' ? '°' : 'deg';
     const separator = type == 'pretty' ? ' ' : '_';
     return `${this.options.slantLineAngle}${angleLabel}${separator}${this.options.gridLineRatioAscender}${ratioSeparator}${this.options.gridLineRatioBase}${ratioSeparator}${this.options.gridLineRatioDescender}${separator}${this.options.gridLineXHeight}mm`;
-  }
-
-  createForm(options = this.defaults) {
-    const container = options.container as HTMLElement;
-
-    Object.keys(options).forEach((key) => {
-      if (key !== "container") {
-        const input = document.createElement("input");
-        input.setAttribute("type", "text");
-        input.setAttribute("placeholder", key);
-        input.setAttribute("data-option", key);
-
-        if (options[key as keyof CalliGridOptions] !== undefined) {
-          input.value = String(options[key as keyof CalliGridOptions]);
-        }
-
-        input.addEventListener("blur", () => {
-          options[key as keyof CalliGridOptions] = parseFloat(input.value) || input.value;
-          this.removeSVG();
-          this.recreateCalliGrid(options);
-        });
-
-        container.appendChild(input);
-      }
-    });
   }
 
   createDocument(): SVGElement {
@@ -302,11 +272,7 @@ export class CalliGrid {
     const x1Final = x2Final - lineHeight / Math.tan((this.options.slantLineAngle * Math.PI) / 180);
     const totalRange = x1Final;
     let spaceBetweenRepetitions;
-    if (repetitions == "auto") {
-      spaceBetweenRepetitions = totalRange / (xHeight - 1);
-    } else {
-      spaceBetweenRepetitions = totalRange / (repetitions - 1);
-    }
+    spaceBetweenRepetitions = totalRange / (repetitions - 1);
 
     let x1 = xStart;
 
@@ -362,7 +328,6 @@ export class CalliGrid {
 
   drawSlantLine(parentEl, lineHeight, xStart, yStart) {
     const angle = this.options.slantLineAngle;
-    const length = lineHeight / Math.cos((angle * Math.PI) / 180);
     const xEnd = xStart + lineHeight / Math.tan((angle * Math.PI) / 180);
     const yEnd = yStart - lineHeight;
 
@@ -372,7 +337,7 @@ export class CalliGrid {
     line.setAttribute("x2", this.formatCoordinate(xEnd));
     line.setAttribute("y2", this.formatCoordinate(yEnd));
     line.setAttribute("stroke", this.options.gridLineColor);
-    line.setAttribute("stroke-width", this.options.gridLineStrokeWidth);
+    line.setAttribute("stroke-width", this.options.gridLineStrokeWidth.toString());
 
     parentEl.appendChild(line);
   }
@@ -433,13 +398,12 @@ export class CalliGrid {
 
   addCopyright(text: string, fontSizeFactor:number): void {
     const leftPos = this.options.documentMarginLeft;
-    const lineHeight = this.options.textFontSize * this.options.textLineHeight;
     const topPos = this.height - this.options.documentMarginBottom;
     const copyright = document.createElementNS("http://www.w3.org/2000/svg", "text");
     copyright.textContent = text;
     copyright.setAttribute("x", leftPos.toString());
     copyright.setAttribute("y", topPos.toString()); // Adjust Y position as needed
-    copyright.setAttribute("font-size", this.options.textFontSize*fontSizeFactor.toString());
+    copyright.setAttribute("font-size", (this.options.textFontSize*fontSizeFactor).toString());
     copyright.setAttribute("fill", this.fontColor);
     copyright.setAttribute("font-family", "Arial, sans-serif"); // Web-safe font
 

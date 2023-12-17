@@ -4,8 +4,9 @@ import 'svg2pdf.js'
 import {CalliGrid} from './calliGrid';
 import {jsPDFOptions} from 'jspdf';
 
-function getOrientation(width:number, height:number):undefined|"p" | "portrait" | "l" | "landscape" {
-  let orientation = 'portrait';
+type orientationConfig = "p" | "portrait" | "l" | "landscape"
+function getOrientation(width:number, height:number): orientationConfig{
+  let orientation:orientationConfig = 'portrait';
   if(width > height) {
     orientation = 'landscape'
   }

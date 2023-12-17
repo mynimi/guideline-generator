@@ -134,7 +134,7 @@ if (formContainer) {
 }
 
 const dlBtn = document.querySelector('[data-download-pdf]');
-dlBtn?.addEventListener('click', (e) => {
+dlBtn?.addEventListener('click', () => {
   generatePDF(calliInstance)
 });
 
