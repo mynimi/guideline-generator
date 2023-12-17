@@ -28,7 +28,7 @@ footer {
 
 .grid {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 2fr 1fr;
   height: 100dvh;
   align-items: center;
   gap: 1rem;
@@ -56,31 +56,31 @@ footer {
   }
 }
 
-.svg-wrapper::after {
-  content: 'Scaled Preview';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  transform-origin: center center;
-  text-wrap: nowrap;
-  font-size: 5rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  text-shadow: 
-  -1px -1px 0 #000, /* Top-left shadow */
-  1px -1px 0 #000,  /* Top-right shadow */
-  -1px 1px 0 #000,  /* Bottom-left shadow */
-  1px 1px 0 #000;   /* Bottom-right shadow */
-  color: white;
-}
+// .svg-wrapper::after {
+//   content: 'Scaled Preview';
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%) rotate(-30deg);
+//   transform-origin: center center;
+//   text-wrap: nowrap;
+//   font-size: 5rem;
+//   font-weight: 900;
+//   text-transform: uppercase;
+//   text-shadow: 
+//   -1px -1px 0 #000, /* Top-left shadow */
+//   1px -1px 0 #000,  /* Top-right shadow */
+//   -1px 1px 0 #000,  /* Bottom-left shadow */
+//   1px 1px 0 #000;   /* Bottom-right shadow */
+//   color: white;
+// }
 
-.svg-wrapper::before {
-  content: '';
-  background: rgb(0 0 0 / 10%);
-  position: absolute;
-  inset: 0;
-}
+// .svg-wrapper::before {
+//   content: '';
+//   background: rgb(0 0 0 / 10%);
+//   position: absolute;
+//   inset: 0;
+// }
 
 
 .config {
