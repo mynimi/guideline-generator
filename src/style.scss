@@ -236,7 +236,7 @@ legend {
 input {
   font-family: 'Victor Mono', monospace;
   
-  &:not([type="checkbox"]):not([type="radio"]) {
+  &:not([type="checkbox"]):not([type="radio"]):not([type="color"]) {
     display: block;
     width: 100%;
     padding: 0.2em 0.3em;
@@ -269,6 +269,29 @@ input {
     &:checked {
       accent-color: var(--c-interactive--active);
     }
+  }
+}
+
+.color-picker {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row-reverse;
+  align-items: center;
+  margin-top: 0.3em;
+
+  input:not([type=checkbox]):not([type=radio]):not([type=color]) {
+    margin-top: 0;
+  }
+
+  input[type="color"]{
+    border: none;
+    background: transparent;
+    // inline-size: 3rem;
+    // block-size: 3rem;
+    padding: 0;
+    outline: none;
+    box-sizing: content-box;
+    border: 2px solid var(--c-interactive);
   }
 }
 

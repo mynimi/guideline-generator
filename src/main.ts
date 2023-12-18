@@ -62,7 +62,7 @@ const formFields: GroupedFormConfig = {
       cat: 'advanced'
     },
     areaBorderColor: {
-      initValue: 'black',
+      initValue: '#000000',
       labelText: 'Area Border Color',
       inputType: 'color',
       cat: 'advanced'
@@ -106,7 +106,7 @@ const formFields: GroupedFormConfig = {
       cat: 'basic'
     },
     gridLineColor: {
-      initValue: 'black',
+      initValue: '#000000',
       labelText: 'Grid Line Color',
       inputType: 'color',
       cat: 'basic'
@@ -181,35 +181,56 @@ function setUpformEvents(config: GroupedFormConfig): CalliGridOptions {
 
   Object.entries(config).forEach(([_legend, fields]) => {
     Object.entries(fields).forEach(([id, configData]) => {
-      const input = document.getElementById(id) as HTMLInputElement | null;
+      if (configData.inputType === 'color') {
+        const colorInput = document.getElementById(`${id}_color`) as HTMLInputElement | null;
+        const hexInput = document.getElementById(`${id}_hex`) as HTMLInputElement | null;
 
-      if (input) {
-        const handleChange = () => {
-          if (configData.inputType === 'checkbox') {
-            changedValues[id] = input.checked;
-          } else {
-            const formValue = input.value;
+        if (colorInput && hexInput) {
+          const handleChange = () => {
+            changedValues[id] = colorInput.value;
+            changedValues[`${id}_hex`] = hexInput.value;
+            regenerateSVG(changedValues);
+          };
 
-            if (
-              formValue !== null &&
-              formValue !== undefined &&
-              formValue !== configData.initValue.toString()
-            ) {
-              if (configData.inputType === 'number') {
-                changedValues[id] = parseFloat(formValue);
-              } else {
-                changedValues[id] = formValue;
+          // Attach event listeners for change and input events
+          colorInput.addEventListener('change', handleChange);
+          colorInput.addEventListener('input', handleChange);
+          hexInput.addEventListener('change', handleChange);
+          hexInput.addEventListener('input', handleChange);
+        } else {
+          console.error(`Elements with ID '${id}__color' or '${id}__hex' not found.`);
+        }
+      } else {
+        const input = document.getElementById(id) as HTMLInputElement | null;
+
+        if (input) {
+          const handleChange = () => {
+            if (configData.inputType === 'checkbox') {
+              changedValues[id] = input.checked;
+            } else {
+              const formValue = input.value;
+
+              if (
+                formValue !== null &&
+                formValue !== undefined &&
+                formValue !== configData.initValue.toString()
+              ) {
+                if (configData.inputType === 'number') {
+                  changedValues[id] = parseFloat(formValue);
+                } else {
+                  changedValues[id] = formValue;
+                }
               }
             }
-          }
-          regenerateSVG(changedValues);
-        };
+            regenerateSVG(changedValues);
+          };
 
-        // Attach event listeners for change and input events
-        input.addEventListener('change', handleChange);
-        input.addEventListener('input', handleChange);
-      } else {
-        console.error(`Element with ID '${id}' not found.`);
+          // Attach event listeners for change and input events
+          input.addEventListener('change', handleChange);
+          input.addEventListener('input', handleChange);
+        } else {
+          console.error(`Element with ID '${id}' not found.`);
+        }
       }
     });
   });
