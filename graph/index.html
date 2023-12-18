@@ -85,21 +85,9 @@
     <div class="grid">
       <div class="config">
         <div class="config__intro">
-          <h1 class="config__title">Guideline Maker</h1>
-          <p>This is a Calligraphy Guideline Generator.</p>
-          <p>It is still in beta with a few quirks.</p>
+          <h1 class="config__title">Graph Maker</h1>
         </div>
         <div id="formContainer"></div>
-        <div class="config__outro">
-          <h2>Export Quirks</h2>
-          <p>The SVG with the area box creates a layer mask. This is not supported in PDF, thus depending on how you set up your SVG, the export might have slight overlaps in the rounded corners.</p>
-          <p>The best way to get this sheet onto a page, is if you set up your page size like your print size and then start a print command (CMD+P/Ctrl+P), which will only give you the generated result.</p>
-          <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
-          <div class="button-group">
-            <button id="downloadButton">Download SVG</button>
-            <button data-download-pdf>Download PDF</button>
-          </div>
-        </div>
       </div>
       <div class="grid__preview">
         <div
@@ -111,7 +99,7 @@
     <footer>&copy; halfapx &middot; 2023</footer>
     <script
       type="module"
-      src="/src/main.ts"
+      src="/src/graph.ts"
     ></script>
   </body>
 </html>
