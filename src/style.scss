@@ -105,6 +105,13 @@ footer {
   width: auto;
   padding: 1rem;
   font-size: 1.5rem;
+
+  @media screen and (max-width: 600px){
+    top: 0;
+    left: 0;
+    right: auto;
+    bottom: auto;
+  }
 }
 
 .grid {
