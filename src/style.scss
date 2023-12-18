@@ -9,8 +9,8 @@
   }
 }
 
-@include font-face('Victor Mono', './VictorMono-Regular');
-@include font-face('Victor Mono', './VictorMono-Italic', normal, italic);
+@include font-face('Victor Mono', '/VictorMono-Regular');
+@include font-face('Victor Mono', '/VictorMono-Italic', normal, italic);
 
 @page {
   margin: 0;
