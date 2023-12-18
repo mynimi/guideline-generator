@@ -3,12 +3,12 @@ import './style.scss'
 
 import { CalliGrid, CalliGridOptions } from './calliGrid';
 import {generatePDF} from './savePDF';
-import { generateForm, FormConfig } from './calliGridForm';
+import { generateForm, GroupedFormConfig } from './calliGridForm';
 import {saveSVGAsFile} from './saveSVG';
 
 let calliInstance = new CalliGrid();
 
-const formFields: FormConfig = {
+const formFields: GroupedFormConfig = {
   'Document Setup':{
     documentWidth: {
       initValue: 210,
@@ -179,7 +179,7 @@ function regenerateSVG(options:CalliGridOptions){
 function setUpformEvents(config: GroupedFormConfig): CalliGridOptions {
   const changedValues: CalliGridOptions = {};
 
-  Object.entries(config).forEach(([legend, fields]) => {
+  Object.entries(config).forEach(([_legend, fields]) => {
     Object.entries(fields).forEach(([id, configData]) => {
       const input = document.getElementById(id) as HTMLInputElement | null;
 

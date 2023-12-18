@@ -1,4 +1,4 @@
-type InputTypes = 'number' | 'color' | 'checkbox';
+type InputTypes = 'number' | 'color' | 'checkbox' | 'radio';
 
 export type FieldConfig = {
   initValue: string | number | boolean;
