@@ -86,17 +86,21 @@
   <body>
     <div class="grid">
       <div class="config">
-        <h1 class="config__title">Guideline Maker</h1>
         <div class="config__intro">
+          <h1 class="config__title">Guideline Maker</h1>
           <p>This is a Calligraphy Guideline Generator.</p>
-          <p>It is still in beta, there will be styling at some point, I promise.</p>
+          <p>It is still in beta with a few quirks.</p>
         </div>
         <div id="formContainer"></div>
-        <p><strong>Export Quirks</strong></p>
-        <p>The SVG uses a layer mask, which doesn't seem to properly be generated in the exported PDF, and may not be respected in Apps like Affinity. However, if you set up your page size like your default paper, running the print command (CMD+P/Ctrl+P) should give you the best result on paper.</p>
-        <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
-        <button id="downloadButton">Download SVG</button>
-        <button data-download-pdf>Download PDF</button>
+        <div class="config__outro">
+          <h2>Export Quirks</h2>
+          <p>The SVG uses a layer mask, which doesn't seem to properly be generated in the exported PDF, and may not be respected in Apps like Affinity. However, if you set up your page size like your default paper, running the print command (CMD+P/Ctrl+P) should give you the best result on paper.</p>
+          <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
+          <div class="button-group">
+            <button id="downloadButton">Download SVG</button>
+            <button data-download-pdf>Download PDF</button>
+          </div>
+        </div>
       </div>
       <div class="grid__preview">
         <div

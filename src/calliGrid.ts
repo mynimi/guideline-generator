@@ -138,21 +138,12 @@ export class CalliGrid {
   }
 
   calculateCalligraphyLineHeight(): number {
-    const normalizationFactor = 1 / this.options.gridLineRatioBase;
-    
-    // Multiply each part of the ratio with the normalizationFactor
+    const normalizationFactor = 1 / this.options.gridLineRatioBase;    
     const xHeight = this.options.gridLineXHeight;
     const normalizedAscender = this.options.gridLineRatioAscender * normalizationFactor;
     const normalizedBase = 1;
-    const normalizedDescender = this.options.gridLineRatioDescender * normalizationFactor;
-    console.log(normalizedAscender);
-    console.log(normalizedDescender);
-    
-    // Calculate the sum of the normalized ratios
+    const normalizedDescender = this.options.gridLineRatioDescender * normalizationFactor;    
     const height = (xHeight * normalizedAscender) + (xHeight * normalizedBase) + (xHeight * normalizedDescender);
-    
-    console.log(height);
-    
     return height;
   }
 
@@ -383,8 +374,8 @@ export class CalliGrid {
     const topPos = lineHeight + this.options.documentMarginTop;
     const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
     title.textContent = titleText;
-    title.setAttribute("x", leftPos.toString()); // Adjust X position as needed
-    title.setAttribute("y", topPos.toString()); // Adjust Y position as needed
+    title.setAttribute("x", leftPos.toString());
+    title.setAttribute("y", topPos.toString());
     title.setAttribute("text-anchor", "end");
     title.setAttribute("font-size", this.options.textFontSize.toString());
     title.setAttribute("fill", this.fontColor);
@@ -399,7 +390,7 @@ export class CalliGrid {
     const copyright = document.createElementNS("http://www.w3.org/2000/svg", "text");
     copyright.textContent = text;
     copyright.setAttribute("x", leftPos.toString());
-    copyright.setAttribute("y", topPos.toString()); // Adjust Y position as needed
+    copyright.setAttribute("y", topPos.toString());
     copyright.setAttribute("font-size", (this.options.textFontSize*fontSizeFactor).toString());
     copyright.setAttribute("fill", this.fontColor);
     copyright.setAttribute("font-family", "Arial, sans-serif"); // Web-safe font

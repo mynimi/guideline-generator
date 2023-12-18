@@ -9,121 +9,149 @@ import {saveSVGAsFile} from './saveSVG';
 let calliInstance = new CalliGrid();
 
 const formFields: FormConfig = {
-  documentWidth: {
-    initValue: 210,
-    labelText: 'Document Width (in mm)',
-    inputType: 'number'
+  'Document Setup':{
+    documentWidth: {
+      initValue: 210,
+      labelText: 'Document Width (in mm)',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    documentHeight: {
+      initValue: 297,
+      labelText: 'Document Height (in mm)',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    documentMarginTop: {
+      initValue: 10,
+      labelText: 'Document Margin Top (in mm)',
+      inputType: 'number',
+      cat: 'advanced'
+    },
+    documentMarginBottom: {
+      initValue: 10,
+      labelText: 'Document Margin Bottom (in mm)',
+      inputType: 'number',
+      cat: 'advanced'
+    },
+    documentMarginLeft: {
+      initValue: 7,
+      labelText: 'Document Margin Left (in mm)',
+      inputType: 'number',
+      cat: 'advanced'
+    },
+    documentMarginRight: {
+      initValue: 7,
+      labelText: 'Document Margin Right (in mm)',
+      inputType: 'number',
+      cat: 'advanced'
+    },
   },
-  documentHeight: {
-    initValue: 297,
-    labelText: 'Document Height (in mm)',
-    inputType: 'number'
+  'Area Box':{
+    addAreaBox: {
+      initValue: true,
+      labelText: 'Add Area Box',
+      inputType: 'checkbox',
+      cat: 'basic'
+    },
+    areaBorderWidth: {
+      initValue: 0.3,
+      labelText: 'Area Border Width',
+      inputType: 'number',
+      step: '0.1',
+      cat: 'advanced'
+    },
+    areaBorderColor: {
+      initValue: 'black',
+      labelText: 'Area Border Color',
+      inputType: 'color',
+      cat: 'advanced'
+    },
+    areaBorderRadius: {
+      initValue: 2,
+      labelText: 'Area Border Radius',
+      inputType: 'number',
+      cat: 'advanced'
+    },
+    areaBlockBuffer: {
+      initValue: 5,
+      labelText: 'Area Block Buffer',
+      inputType: 'number',
+      cat: 'advanced'
+    },
   },
-  documentMarginTop: {
-    initValue: 10,
-    labelText: 'Document Margin Top (in mm)',
-    inputType: 'number'
+  'Grid Line':{
+    gridLineRatioAscender: {
+      initValue: 3,
+      labelText: 'Grid Line Ratio Ascender',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    gridLineRatioBase: {
+      initValue: 2,
+      labelText: 'Grid Line Ratio Base',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    gridLineRatioDescender: {
+      initValue: 3,
+      labelText: 'Grid Line Ratio Descender',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    gridLineXHeight: {
+      initValue: 5,
+      labelText: 'Grid Line X-Height (in mm)',
+      inputType: 'number',
+      cat: 'basic'
+    },
+    gridLineColor: {
+      initValue: 'black',
+      labelText: 'Grid Line Color',
+      inputType: 'color',
+      cat: 'basic'
+    },
+    gridLineStrokeWidth: {
+      initValue: 0.2,
+      labelText: 'Grid Line Stroke Width',
+      inputType: 'number',
+      step: '0.1',
+      cat: 'advanced'
+    },
+    gridBaseLineStrokeWidth: {
+      initValue: 1,
+      labelText: 'Grid Base Line Stroke Width',
+      inputType: 'number',
+      step: '0.1',
+      cat: 'advanced'
+    },
+    addgridXHeightIndicator: {
+      initValue: true,
+      labelText: 'Add Grid X-Height Indicator',
+      inputType: 'checkbox',
+      cat: 'basic'
+    },
+    gridXHeightIndicatorStrokeWidth: {
+      initValue: 2,
+      labelText: 'Grid X-Height Indicator Stroke Width',
+      inputType: 'number',
+      cat: 'advanced'
+    },
+    slantLineAngle: {
+      initValue: 55,
+      labelText: 'Slant Line Angle',
+      inputType: 'number',
+      max: '180',
+      step: '5',
+      cat: 'basic'
+    },
+    slantLinesPerLine: {
+      initValue: 10,
+      labelText: 'Slant Lines Per Line',
+      inputType: 'number',
+      cat: 'advanced'
+    }
   },
-  documentMarginBottom: {
-    initValue: 10,
-    labelText: 'Document Margin Bottom (in mm)',
-    inputType: 'number'
-  },
-  documentMarginLeft: {
-    initValue: 7,
-    labelText: 'Document Margin Left (in mm)',
-    inputType: 'number'
-  },
-  documentMarginRight: {
-    initValue: 7,
-    labelText: 'Document Margin Right (in mm)',
-    inputType: 'number'
-  },
-  addAreaBox: {
-    initValue: true,
-    labelText: 'Add Area Box',
-    inputType: 'checkbox'
-  },
-  areaBorderWidth: {
-    initValue: 0.3,
-    labelText: 'Area Border Width',
-    inputType: 'number',
-    step: '0.1',
-  },
-  areaBorderColor: {
-    initValue: 'black',
-    labelText: 'Area Border Color',
-    inputType: 'color'
-  },
-  areaBorderRadius: {
-    initValue: 2,
-    labelText: 'Area Border Radius',
-    inputType: 'number'
-  },
-  areaBlockBuffer: {
-    initValue: 5,
-    labelText: 'Area Block Buffer',
-    inputType: 'number'
-  },
-  gridLineRatioAscender: {
-    initValue: 3,
-    labelText: 'Grid Line Ratio Ascender',
-    inputType: 'number'
-  },
-  gridLineRatioBase: {
-    initValue: 2,
-    labelText: 'Grid Line Ratio Base',
-    inputType: 'number'
-  },
-  gridLineRatioDescender: {
-    initValue: 3,
-    labelText: 'Grid Line Ratio Descender',
-    inputType: 'number'
-  },
-  gridLineXHeight: {
-    initValue: 5,
-    labelText: 'Grid Line X-Height (in mm)',
-    inputType: 'number'
-  },
-  gridLineColor: {
-    initValue: 'black',
-    labelText: 'Grid Line Color',
-    inputType: 'color'
-  },
-  gridLineStrokeWidth: {
-    initValue: 0.2,
-    labelText: 'Grid Line Stroke Width',
-    inputType: 'number',
-    step: '0.1',
-  },
-  gridBaseLineStrokeWidth: {
-    initValue: 1,
-    labelText: 'Grid Base Line Stroke Width',
-    inputType: 'number',
-    step: '0.1',
-  },
-  addgridXHeightIndicator: {
-    initValue: true,
-    labelText: 'Add Grid X-Height Indicator',
-    inputType: 'checkbox'
-  },
-  gridXHeightIndicatorStrokeWidth: {
-    initValue: 2,
-    labelText: 'Grid X-Height Indicator Stroke Width',
-    inputType: 'number'
-  },
-  slantLineAngle: {
-    initValue: 55,
-    labelText: 'Slant Line Angle',
-    inputType: 'number',
-    max: '180',
-    step: '5',
-  },
-  slantLinesPerLine: {
-    initValue: 10,
-    labelText: 'Slant Lines Per Line',
-    inputType: 'number'
-  }
 };
 
 const generatedForm = generateForm(formFields);
@@ -148,31 +176,42 @@ function regenerateSVG(options:CalliGridOptions){
   calliInstance = new CalliGrid(options);
 }
 
-function setUpformEvents(config: FormConfig): CalliGridOptions {
+function setUpformEvents(config: GroupedFormConfig): CalliGridOptions {
   const changedValues: CalliGridOptions = {};
 
-  Object.entries(config).forEach(([id, configData]) => {
-    const input = document.getElementById(id) as HTMLInputElement;
+  Object.entries(config).forEach(([legend, fields]) => {
+    Object.entries(fields).forEach(([id, configData]) => {
+      const input = document.getElementById(id) as HTMLInputElement | null;
 
-    if (configData.inputType === 'checkbox') {
-      input.addEventListener('change', () => {
-        changedValues[id] = input.checked;
-        regenerateSVG(changedValues);
-      });
-    } else {
-      input.addEventListener('change', () => {
-        const formValue = input.value;
-
-        if (formValue !== null && formValue !== configData.initValue.toString()) {
-          if (configData.inputType === 'number') {
-            changedValues[id] = parseFloat(formValue);
+      if (input) {
+        const handleChange = () => {
+          if (configData.inputType === 'checkbox') {
+            changedValues[id] = input.checked;
           } else {
-            changedValues[id] = formValue;
+            const formValue = input.value;
+
+            if (
+              formValue !== null &&
+              formValue !== undefined &&
+              formValue !== configData.initValue.toString()
+            ) {
+              if (configData.inputType === 'number') {
+                changedValues[id] = parseFloat(formValue);
+              } else {
+                changedValues[id] = formValue;
+              }
+            }
           }
-        }
-        regenerateSVG(changedValues);
-      });
-    }
+          regenerateSVG(changedValues);
+        };
+
+        // Attach event listeners for change and input events
+        input.addEventListener('change', handleChange);
+        input.addEventListener('input', handleChange);
+      } else {
+        console.error(`Element with ID '${id}' not found.`);
+      }
+    });
   });
 
   return changedValues;
