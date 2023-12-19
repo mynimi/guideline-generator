@@ -1,38 +1,104 @@
-export interface GraphGridOptions {
+export interface GraphGridBasicOptions {
   documentWidth?: number;
   documentHeight?: number;
+  lineColor?: string;
+  addAreaBox?: boolean;
+  cellSize?: number;
+  gridType?: "graph" | "dot";
+}
+
+export interface GraphGridExtendedOptions {
   documentMarginTop?: number;
   documentMarginBottom?: number;
   documentMarginLeft?: number;
   documentMarginRight?: number;
-  lineColor?:string;
-  addAreaBox?: boolean;
-  areaBorderWidth?: number;
-  areaBorderColor?: string;
+  areaStrokeWidth?: number;
+  areaStrokeColor?: string;
   areaBorderRadius?: number;
-  gridLineXHeight?: number;
-  gridLineStrokeWidth?: number;
-  coordinateDecimalPlaceMax?:number;
-  container?: Element;
-  textFontSize?: number;
-  textLineHeight?:number;
-  addTitle?:boolean;
-  gridType?:'graph'|'dot';
+  gridStrokeWidth?: number;
+  addTitle?: boolean;
 }
 
-export class GraphGrid {
-  public defaults: GraphGridOptions;
-  public svg: SVGElement;
-  private options: GraphGridOptions;
-  private maskId: string;
-  public width: number;
-  public height: number;
-  private marginTop:number;
-  private marginBottom:number;
-  private fontColor:string;
+export interface GraphGridTechOptions {
+  coordinateDecimalPlaceMax?: number;
+  container?: Element;
+  textFontSize?: number;
+  textLineHeight?: number;
+}
 
-  constructor(options?: GraphGridOptions) {
-    this.defaults = {
+type RequiredFields<T> = Required<{ [K in keyof T]: T[K] }>;
+
+export type GraphGridConfig = GraphGridBasicOptions & GraphGridExtendedOptions & GraphGridTechOptions;
+
+export class GraphGrid {
+  #defaults: RequiredFields<GraphGridConfig>;
+  #config: RequiredFields<GraphGridConfig>;
+  #defaultStrokeSize: number;
+  #defaultStrokeColor: string;
+  #copyrightSizeFactor: number;
+  #textBuffer: number;
+  #fontColor: string;
+  #copyRightText: string;
+  #svg: SVGElement;
+  #maskId: string;
+
+  get defaultValues(): RequiredFields<GraphGridConfig> {
+    return this.#defaults;
+  }
+
+  get svgElement(): SVGElement {
+    return this.#svg;
+  }
+
+  get width(): number {
+    return this.#config.documentWidth;
+  }
+
+  get height(): number {
+    return this.#config.documentHeight;
+  }
+
+  private get textHeight(): number {
+    return this.#config.textFontSize * this.#config.textLineHeight + this.#textBuffer;
+  }
+
+  private get marginTop(): number {
+    return this.#config.addTitle ? this.#config.documentMarginTop + this.textHeight : this.#config.documentMarginTop;
+  }
+
+  private get marginBottom(): number {
+    return this.#config.documentMarginBottom + this.textHeight * this.#copyrightSizeFactor;
+  }
+
+  private get marginLeft():number {
+    return this.#config.documentMarginLeft;
+  }
+
+  private get marginRight():number {
+    return this.#config.documentMarginRight;
+  }
+
+  private get gridWidth():number {
+    return this.width - this.#config.documentMarginLeft - this.#config.documentMarginRight;
+  }
+
+  private get gridHeight():number {
+    return this.height - this.marginTop - this.marginBottom;
+  }
+
+  get prettyName():string {
+    return this.generateGridName("pretty");
+  }
+
+  get fileName():string {
+    return this.generateGridName("file");
+  }
+
+  constructor(options?: GraphGridConfig) {
+    this.#defaultStrokeColor = "#000000";
+    this.#defaultStrokeSize = 0.2;
+
+    this.#defaults = {
       documentWidth: 210,
       documentHeight: 297,
       documentMarginTop: 10,
@@ -40,149 +106,158 @@ export class GraphGrid {
       documentMarginLeft: 7,
       documentMarginRight: 7,
       addAreaBox: true,
-      areaBorderWidth: 0.3,
-      areaBorderColor: "#000000",
-      areaBorderRadius: 2,
-      gridLineXHeight: 5,
-      gridLineStrokeWidth: 0.2,
-      lineColor:'black',
+      areaBorderRadius: 5,
+      cellSize: 5,
+      gridStrokeWidth: this.#defaultStrokeSize,
+      areaStrokeWidth: this.#defaultStrokeSize,
+      lineColor: this.#defaultStrokeColor,
+      areaStrokeColor: this.#defaultStrokeColor,
       container: document.querySelector("[data-svg-preview]"),
       coordinateDecimalPlaceMax: 2,
       textFontSize: 4,
       textLineHeight: 1.2,
       addTitle: true,
-      gridType: 'graph'
+      gridType: "graph",
     };
 
-    this.options = options ? { ...this.defaults, ...options } : this.defaults;
-    this.width = this.options.documentWidth; // these are accessible since the pdf accesses those.
-    this.height = this.options.documentHeight; // these are accessible since the pdf accesses those.
-    this.svg = this.createDocument(); // public svg so it can be grabbed by pdf
-    this.fontColor = '#808080';
-    const textBuffer = 2;
-    const copyrightSizeFactor = 0.7;
-    const textHeight = this.options.textFontSize * this.options.textLineHeight + textBuffer;
-    
-    this.marginTop = this.options.addTitle ? this.options.documentMarginTop + textHeight : this.options.documentMarginTop;
-    this.marginBottom = this.options.documentMarginBottom + (textHeight * copyrightSizeFactor);
-    
-    this.addCopyright("© grid code.halfapx.com/guideline-generator/", copyrightSizeFactor);
-    if(this.options.addTitle){
-      this.addTitle(this.generateGridName('pretty'));
-    }
+    this.#config = options ? { ...this.#defaults, ...options } : this.#defaults;
 
-    if (this.options.addAreaBox) {
-      this.maskId = "grid-mask";
+    this.#fontColor = "#808080";
+    this.#copyrightSizeFactor = 0.7;
+    this.#textBuffer = 2;
+    this.#copyRightText = "© grid code.halfapx.com/guideline-generator/";
+    this.init();
+  }
+
+  init() {
+    this.#svg = this.createDocument();
+    this.addTitleAndCopyright();
+
+    if (this.#config.addAreaBox) {
+      this.#maskId = "grid-mask";
       this.drawMask();
-      this.drawRectangle(this.svg, "transparent", this.options.areaBorderColor);
+      this.drawRectangle(this.#svg, "transparent", this.#config.areaStrokeColor);
     }
     this.drawGraphGrid();
     this.renderSVG();
   }
 
-  generateGridName(type: "pretty" | "file"): string {
-    const separator = type == 'pretty' ? ' ' : '_';
-    const name = this.options.gridType == 'dot' ? 'dot grid' : 'graph';
-    return `${name}${separator}${this.options.gridLineXHeight}mm`;
+  renderSVG(): void {
+    this.#config.container.appendChild(this.#svg);
   }
 
-  createDocument(): SVGElement {
-    const width = this.options.documentWidth;
-    const height = this.options.documentHeight;
+  removeSVG(): void {
+    this.#config.container.removeChild(this.#svg);
+  }
+
+  private addTitleAndCopyright(): void {
+    const copyrightFontSize = this.#config.textFontSize * this.#copyrightSizeFactor;
+    const copyrightTopPos = this.height - this.#config.documentMarginBottom;
+    const copyrightLeftPos = this.#config.documentMarginLeft;
+
+    this.addTextString(this.#svg, this.#copyRightText, copyrightFontSize, "start", copyrightTopPos, copyrightLeftPos);
+
+    if (this.#config.addTitle) {
+      const titleFontSize = this.#config.textFontSize;
+      const titleTopPos = titleFontSize * this.#config.textLineHeight + this.#config.documentMarginTop;
+      const titleLeftPos = this.#config.documentWidth - this.#config.documentMarginRight;
+
+      this.addTextString(this.#svg, this.prettyName, titleFontSize, "end", titleTopPos, titleLeftPos);
+    }
+  }
+
+  private generateGridName(type: "pretty" | "file"): string {
+    const separator = type == "pretty" ? " " : "_";
+    const name = this.#config.gridType == "dot" ? "dot grid" : "graph";
+    return `${name}${separator}${this.#config.cellSize}mm`;
+  }
+
+  private createDocument(): SVGElement {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
-    const viewBox = `0 0 ${width} ${height}`;
+    const viewBox = `0 0 ${this.width} ${this.height}`;
     svg.setAttribute("viewBox", viewBox);
 
     return svg;
   }
 
-  drawGraphGrid() {
-    const docWidth = this.options.documentWidth;
-    const docHeight = this.options.documentHeight;
-    const marginLeft = this.options.documentMarginLeft;
-    const marginRight = this.options.documentMarginRight;
-    const marginTop = this.marginTop;
-    const marginBottom = this.marginBottom;
-    const xEnd = docWidth - marginRight;
-    const yEnd = docHeight - marginBottom;
-    const height = docHeight - marginTop - marginBottom;
-    const width = docWidth - marginLeft - marginRight;
-    const xHeight = this.options.gridLineXHeight;
-    const horizontalReps = height / xHeight;
-    const horizontalRemainder = height % xHeight;
-    const verticalReps = width / xHeight;
-    const verticalRemainder = width % xHeight;
+  private drawGraphGrid() {
+    const cellSize = this.#config.cellSize;
+    const gridType = this.#config.gridType;
+    const xEnd = this.width - this.marginRight;
+    const yEnd = this.height - this.marginBottom;
+    const horizontalIntersections = []; // used to generate dots
+    const horizontalReps = this.gridHeight / cellSize;
+    const horizontalRemainder = this.gridHeight % cellSize;
+    const verticalIntersections = []; // used to generate dots
+    const verticalReps = this.gridWidth / cellSize;
+    const verticalRemainder = this.gridWidth % cellSize;
 
-    const gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);   
-    let yLineStart = marginTop + horizontalRemainder / 2;
-    const gridType = this.options.gridType;
-    const horizontalIntersections = [];
+    const gridParent = this.createGroup("grid", "calli-grid", this.#maskId ? this.#maskId : undefined);
+
+    let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
-      if(gridType == 'graph'){
-        this.drawHorizontalLine(gridParent, marginLeft, xEnd, yLineStart, this.options.lineColor, this.options.gridLineStrokeWidth);
+      if (gridType == "graph") {
+        this.drawLine(gridParent, 'horizontal', yLineStart, this.marginLeft, xEnd);
       }
-      if(gridType == 'dot'){
+      if (gridType == "dot") {
         horizontalIntersections.push(yLineStart);
       }
-      yLineStart += xHeight;
+      yLineStart += cellSize;
     }
-    
-    let xLineStart = marginLeft + verticalRemainder / 2;
-    const verticalIntersections = [];
+
+    let xLineStart = this.marginLeft + verticalRemainder / 2;
     for (let i = 0; i <= verticalReps; i++) {
-      if(gridType == 'graph'){
-        this.drawVerticalLine(gridParent, xLineStart, marginTop, yEnd);
+      if (gridType == "graph") {
+        this.drawLine(gridParent, 'vertical', xLineStart, this.marginTop, yEnd);
       }
-      if(gridType == 'dot'){
+      if (gridType == "dot") {
         verticalIntersections.push(xLineStart);
       }
-      xLineStart += xHeight;
-    }
-  
-    if(gridType == 'dot'){
-      // Add dots at intersection points
-      for (let i = 0; i < horizontalIntersections.length; i++) {
-        for (let j = 0; j < verticalIntersections.length; j++) {
-          const x = this.formatCoordinate(verticalIntersections[j]);
-          const y = this.formatCoordinate(horizontalIntersections[i]);
-    
-          const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          dot.setAttribute("cx", x.toString());
-          dot.setAttribute("cy", y.toString());
-          dot.setAttribute("r", this.options.gridLineStrokeWidth.toString()); // Adjust the dot size as needed
-          dot.setAttribute("fill", this.options.lineColor); // Adjust the dot color as needed
-          gridParent.appendChild(dot);
-        }
-      }
+      xLineStart += cellSize;
     }
 
-    this.svg.appendChild(gridParent);
+    if (gridType == "dot") {
+      this.drawDotsAtPoints(gridParent, horizontalIntersections, verticalIntersections);
+    }
+
+    this.#svg.appendChild(gridParent);
   }
 
-  drawRectangle(parentEl, fillColor, strokeColor) {
+  private drawDotsAtPoints(parentEl: SVGElement, horizontalPoints: number[], verticalPoints: number[]): void {
+    for (const horizontalPoint of horizontalPoints) {
+      for (const verticalPoint of verticalPoints) {
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("cx", this.formatCoordinate(verticalPoint).toString());
+        dot.setAttribute("cy", this.formatCoordinate(horizontalPoint).toString());
+        dot.setAttribute("r", this.#config.gridStrokeWidth.toString()); // Adjust the dot size as needed
+        dot.setAttribute("fill", this.#config.lineColor); // Adjust the dot color as needed
+        parentEl.appendChild(dot);
+      }
+    }
+  }
+
+  private drawRectangle(parentEl, fillColor, strokeColor) {
     const rectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const rectWidth = this.options.documentWidth - this.options.documentMarginLeft - this.options.documentMarginRight;
-    const rectHeight = this.options.documentHeight - this.marginTop - this.marginBottom;
-    rectangle.setAttribute("x", this.options.documentMarginLeft.toString());
+    rectangle.setAttribute("x", this.marginLeft.toString());
     rectangle.setAttribute("y", this.marginTop.toString());
-    rectangle.setAttribute("width", rectWidth.toString());
-    rectangle.setAttribute("height", rectHeight.toString());
-    rectangle.setAttribute("rx", this.options.areaBorderRadius.toString()); // Set rounding radius for corners
-    rectangle.setAttribute("fill", fillColor); // Set fill color
-    rectangle.setAttribute("stroke-width", this.options.areaBorderWidth.toString());
+    rectangle.setAttribute("width", this.gridWidth.toString());
+    rectangle.setAttribute("height", this.gridHeight.toString());
+    rectangle.setAttribute("rx", this.#config.areaBorderRadius.toString());
+    rectangle.setAttribute("fill", fillColor);
+    rectangle.setAttribute("stroke-width", this.#config.areaStrokeWidth.toString());
     rectangle.setAttribute("stroke", strokeColor);
     parentEl.appendChild(rectangle);
   }
 
-  drawMask() {
+  private drawMask():void {
     const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-    mask.setAttribute("id", this.maskId);
+    mask.setAttribute("id", this.#maskId);
     this.drawRectangle(mask, "white", "black");
-    this.svg.appendChild(mask);
+    this.#svg.appendChild(mask);
   }
 
-  createGroup(className?: string, idName?: string, maskId?: string): SVGElement {
+  private createGroup(className?: string, idName?: string, maskId?: string): SVGElement {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     if (className) {
       group.setAttribute("class", className);
@@ -196,77 +271,44 @@ export class GraphGrid {
     return group;
   }
 
-  drawVerticalLine(parentEl: SVGElement, xStart: number, yStart: number, yEnd: number) {
+  private drawLine(parentEl:SVGElement, orientation: 'horizontal' | 'vertical', gridPos:number, lineStart:number, lineEnd:number,){
+    let x1, x2, y1, y2;
+    if (orientation === 'horizontal') {
+      x1 = lineStart;
+      x2 = lineEnd;
+      y1 = y2 = gridPos;
+    }
+  
+    if (orientation === 'vertical') {
+      y1 = lineStart;
+      y2 = lineEnd;
+      x1 = x2 = gridPos;
+    }
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const x = xStart;
-    line.setAttribute("x1", x.toString());
-    line.setAttribute("x2", x.toString());
-    line.setAttribute("y1", yStart.toString());
-    line.setAttribute("y2", yEnd.toString());
-    line.setAttribute("stroke", this.options.lineColor);
-    line.setAttribute("stroke-width", this.options.gridLineStrokeWidth.toString());
+    line.setAttribute("x1", this.formatCoordinate(x1).toString());
+    line.setAttribute("x2", this.formatCoordinate(x2).toString());
+    line.setAttribute("y1", this.formatCoordinate(y1).toString());
+    line.setAttribute("y2", this.formatCoordinate(y2).toString());
+    line.setAttribute("stroke", this.#config.lineColor);
+    line.setAttribute("stroke-width", this.#config.gridStrokeWidth.toString());
 
     parentEl.appendChild(line);
   }
 
-  drawHorizontalLine(
-    parentEl: SVGElement,
-    xStart: number,
-    xEnd: number,
-    yStart: number,
-    strokeColor: string,
-    strokeWidth: number
-  ) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", this.formatCoordinate(xStart));
-    line.setAttribute("x2", this.formatCoordinate(xEnd));
-    line.setAttribute("y1", this.formatCoordinate(yStart));
-    line.setAttribute("y2", this.formatCoordinate(yStart));
-    line.setAttribute("stroke", strokeColor);
-    line.setAttribute("stroke-width", strokeWidth.toString());
+  private addTextString(parentEl: SVGElement,text: string,fontSize: number,textAnchor: "start" | "end",topPos: number,leftPos: number): void {
+    const textString = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    textString.textContent = text;
+    textString.setAttribute("x", leftPos.toString());
+    textString.setAttribute("y", topPos.toString());
+    textString.setAttribute("text-anchor", textAnchor);
+    textString.setAttribute("font-size", fontSize.toString());
+    textString.setAttribute("fill", this.#fontColor);
+    textString.setAttribute("font-family", "Arial, sans-serif"); // Web-safe font
 
-    parentEl.appendChild(line);
+    parentEl.appendChild(textString);
   }
 
-  addTitle(titleText: string): void {
-    const leftPos = this.options.documentWidth - this.options.documentMarginRight
-    const lineHeight = this.options.textFontSize * this.options.textLineHeight;
-    const topPos = lineHeight + this.options.documentMarginTop;
-    const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    title.textContent = titleText;
-    title.setAttribute("x", leftPos.toString());
-    title.setAttribute("y", topPos.toString());
-    title.setAttribute("text-anchor", "end");
-    title.setAttribute("font-size", this.options.textFontSize.toString());
-    title.setAttribute("fill", this.fontColor);
-    title.setAttribute("font-family", "Arial, sans-serif"); // Web-safe font
-
-    this.svg.appendChild(title);
-  }
-
-  addCopyright(text: string, fontSizeFactor:number): void {
-    const leftPos = this.options.documentMarginLeft;
-    const topPos = this.height - this.options.documentMarginBottom;
-    const copyright = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    copyright.textContent = text;
-    copyright.setAttribute("x", leftPos.toString());
-    copyright.setAttribute("y", topPos.toString());
-    copyright.setAttribute("font-size", (this.options.textFontSize*fontSizeFactor).toString());
-    copyright.setAttribute("fill", this.fontColor);
-    copyright.setAttribute("font-family", "Arial, sans-serif"); // Web-safe font
-
-    this.svg.appendChild(copyright);
-  }
-
-  renderSVG(): void {
-    this.options.container.appendChild(this.svg);
-  }
-
-  removeSVG(): void {
-    this.options.container.removeChild(this.svg);
-  }
-
-  formatCoordinate(n:number):string{
-    return parseFloat(n.toFixed(this.options.coordinateDecimalPlaceMax)).toString();
+  private formatCoordinate(n: number): string {
+    return parseFloat(n.toFixed(this.#config.coordinateDecimalPlaceMax)).toString();
   }
 }
