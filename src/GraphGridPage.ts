@@ -1,4 +1,4 @@
-import { GridPage, GridPageBasicOtions, GridPageConfig, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields } from "./GridPage";
+import { GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields } from "./GridPage";
 
 export interface GraphGridPageBasicOptions extends GridPageBasicOtions {
   lineColor?: string;
@@ -16,8 +16,8 @@ export type GraphGridPageConfig = GraphGridPageBasicOptions & GraphGridPageExten
 export class GraphGridPage extends GridPage {
   #defaults: RequiredFields<GraphGridPageConfig>;
   #config: RequiredFields<GraphGridPageConfig>;
-  readonly #svg:SVGElement;
-  readonly #maskId:string;
+  #prettyName:string;
+  #fileName:string;
 
   constructor(options: Partial<GraphGridPageConfig> = {}) {
     super(options);
@@ -28,8 +28,6 @@ export class GraphGridPage extends GridPage {
       gridStrokeWidth: parentDefaults.stroke,
       cellSize: 5,
     }
-    this.#svg = this.svgElement;
-    this.#maskId = this.maskId;
     this.#config = { ...this.#defaults, ...options };
     if ('color' in options) {
       this.#config.lineColor = options.color;
@@ -37,6 +35,12 @@ export class GraphGridPage extends GridPage {
     if('stroke' in options){
       this.#config.gridStrokeWidth = options.stroke;
     }
+    this.#prettyName = this.generateName("pretty");
+    this.#fileName = this.generateName('file');
+
+    super.fileName = this.#fileName;
+    super.prettyName = this.#prettyName;
+    super.init();
     this.drawGraphGrid();
   }
 
@@ -49,26 +53,26 @@ export class GraphGridPage extends GridPage {
     const verticalReps = this.gridWidth / cellSize;
     const verticalRemainder = this.gridWidth % cellSize;
 
-    const gridParent = this.createGroup("grid","calli-grid",this.#maskId ? this.#maskId : undefined);
+    const gridParent = this.createGroup("grid","calli-grid",this.maskId ? this.maskId : undefined);
 
     let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
-      this.drawLine(gridParent, "horizontal", yLineStart, this.marginLeft, xEnd, this.#config.lineColor, this.#config.gridStrokeWidth);
+      this.drawSolidLine(gridParent, "horizontal", yLineStart, this.marginLeft, xEnd, this.#config.lineColor, this.#config.gridStrokeWidth);
       yLineStart += cellSize;
     }
 
     let xLineStart = this.marginLeft + verticalRemainder / 2;
     for (let i = 0; i <= verticalReps; i++) {
-      this.drawLine(gridParent, "vertical", xLineStart, this.marginTop, yEnd, this.#config.lineColor, this.#config.gridStrokeWidth);
+      this.drawSolidLine(gridParent, "vertical", xLineStart, this.marginTop, yEnd, this.#config.lineColor, this.#config.gridStrokeWidth);
       xLineStart += cellSize;
     }
 
-    this.#svg.appendChild(gridParent);
+    this.svgElement.appendChild(gridParent);
   }
 
-  override generateGridName(type: 'pretty' | 'file'): string {
+  private generateName(type: 'pretty' | 'file'): string {
     const separator = type === 'pretty' ? ' ' : '_';
-    const name = `graph${separator}grid${separator}page`;
+    const name = `graph${separator}${this.#config.cellSize!}mm`;
     return `${name}`;
   }
 }
