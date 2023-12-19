@@ -9,6 +9,6 @@ import {CalligraphyAreaPage} from './CalligraphyAreaPage';
 console.log('test');
 
 // new CalligraphyLinePage();
-new CalligraphyAreaPage();
+new CalligraphyAreaPage({documentHeight: 100, documentWidth: 100, slantAngle: 55});
 // new DotGridPage();
 // new GraphGridPage();

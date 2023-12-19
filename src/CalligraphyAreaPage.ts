@@ -31,7 +31,7 @@ export class CalligraphyAreaPage extends GridPage {
       lineColor: parentDefaults.color,
       gridStrokeWidth: parentDefaults.stroke,
       xHeight:7,
-      slantAngle:55,
+      slantAngle:45,
       slantAngleGap:10,    
       areaBlockBuffer: 7,
       addDividerLines:true,
@@ -50,6 +50,7 @@ export class CalligraphyAreaPage extends GridPage {
     super.prettyName = this.#prettyName;
     super.init();
     this.drawCalligraphyArea();
+    this.removeLinesOutsideMask(this.maskId);
   }
 
   private drawCalligraphyArea():void {
@@ -77,44 +78,60 @@ export class CalligraphyAreaPage extends GridPage {
       yLineStart += xHeight;
     }
     const slantLines = this.createGroup("slant-lines");
-
-    // draw a faux line from bottom left corner upwards
-    const middleSlant = this.simulateSlantLine(this.gridHeight, this.#config.slantAngle, this.marginLeft, this.height - this.marginBottom);
-    console.log(middleSlant);
-    const topIntersectionPoint = middleSlant.x2;
-    const leftSide = this.gridWidth - topIntersectionPoint;
-    const rightSide = this.gridWidth - leftSide;
-    console.log('left:', leftSide);
-    console.log('right:',rightSide);
-    
-    console.log('total', leftSide + rightSide);
-    console.log(this.gridWidth);
-    console.log(topIntersectionPoint);
-    
-    const rightWidth = this.gridWidth - topIntersectionPoint;
-
     const slantGap = this.#config.slantAngleGap;
     const slantReps = this.gridWidth / slantGap;
-    
+
+    // were currently just drawing the lines left and right in the width of the width and then cleanup later.
     let posXRight = this.marginLeft;
     for(let i = 0; i <= slantReps; i++){
-      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXRight, this.height - this.marginBottom, 'red', 1)
+      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXRight, this.height - this.marginBottom, color, stroke)
       posXRight += slantGap;
     }
     
     let posXLeft = this.marginLeft;
     for(let i = 0; i <= slantReps; i++){
-      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXLeft, this.height - this.marginBottom, 'blue', 1)
+      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXLeft, this.height - this.marginBottom, color, stroke);
       posXLeft -= slantGap;
     }
-    
-    this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, this.marginLeft, this.height - this.marginBottom, 'green', 1)
 
     gridParent.appendChild(horizontalLines);
     gridParent.appendChild(slantLines);
     this.svgElement.appendChild(gridParent);
   }
 
+  removeLinesOutsideMask(maskId: string): void {
+    const svg = document.querySelector('svg'); // Replace this with your actual SVG element selection method
+    const maskRect = svg.querySelector(`#${maskId} > rect`) as SVGRectElement; // Assuming the mask is a rect element
+  
+    // Get mask dimensions
+    const maskX = parseFloat(maskRect.getAttribute('x') || '0');
+    const maskY = parseFloat(maskRect.getAttribute('y') || '0');
+    const maskWidth = parseFloat(maskRect.getAttribute('width') || '0');
+    const maskHeight = parseFloat(maskRect.getAttribute('height') || '0');
+  
+    // Find lines to check against the mask
+    const linesToCheck = Array.from(svg.querySelectorAll('line')); // Selecting only line elements
+  
+    // Remove lines that are entirely outside the mask
+    linesToCheck.forEach((line: SVGLineElement) => {
+      const x1 = parseFloat(line.getAttribute('x1') || '0');
+      const y1 = parseFloat(line.getAttribute('y1') || '0');
+      const x2 = parseFloat(line.getAttribute('x2') || '0');
+      const y2 = parseFloat(line.getAttribute('y2') || '0');
+  
+      // Check if both line endpoints are entirely outside the mask boundaries
+      const bothPointsOutside = (
+        (x1 < maskX && x2 < maskX) ||
+        (x1 > maskX + maskWidth && x2 > maskX + maskWidth) ||
+        (y1 < maskY && y2 < maskY) ||
+        (y1 > maskY + maskHeight && y2 > maskY + maskHeight)
+      );
+  
+      if (bothPointsOutside) {
+        line.remove(); // Remove the line if both points are outside the mask boundaries
+      }
+    });
+  }
   
   simulateSlantLine(height:number, angle:number, startPosX:number, startPosY:number){
     const xEnd = startPosX + height / Math.tan((angle * Math.PI) / 180);
