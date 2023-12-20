@@ -1,5 +1,10 @@
 import {GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields} from "./GridPage";
 
+interface Point {
+  x: number;
+  y: number;
+}
+
 export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOtions {
   lineColor?: string;
   xHeight?: number;
@@ -198,7 +203,7 @@ export class CalligraphyAreaPage extends GridPage {
     this.drawLineWithinArea(parentEl, newX1, newY1, newX2, newY2, color, stroke, maxLength);
   }
 
-  calculateIntersectionPoints(lineX1: number, lineY1: number, lineX2: number, lineY2: number): number[] {
+  calculateIntersectionPoints(lineX1: number, lineY1: number, lineX2: number, lineY2: number): Point[] {
     const rectX = this.marginLeft;
     const rectY = this.marginTop;
     const rectWidth = this.gridWidth;
@@ -212,7 +217,7 @@ export class CalligraphyAreaPage extends GridPage {
     const leftIntersectionY = slope * rectX + yIntercept;
     const rightIntersectionY = slope * (rectX + rectWidth) + yIntercept;
 
-    const intersectionPoints = [];
+    const intersectionPoints:Point[] = [];
 
     if (isInsideRectangle(topIntersectionX, rectY)) {
       intersectionPoints.push({ x: topIntersectionX, y: rectY });

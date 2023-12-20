@@ -117,7 +117,7 @@ export class CalligraphyLinePage extends GridPage {
     this.drawLineSection(lineGroup, 'base', gridPosBaseLine, lineStart, lineEnd, "up");
     this.drawLineSection(lineGroup, 'descender', gridPosDescenderLine, lineStart, lineEnd, "up");
     if(this.#config.slantAngle > 0){
-      this.drawSlantLines(lineGroup, gridPosDescenderLine, lineStart, lineEnd);
+      this.drawSlantLines(lineGroup, gridPosDescenderLine, lineStart);
     }
     parentEl.appendChild(lineGroup);
   }

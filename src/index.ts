@@ -8,7 +8,7 @@ import { CalligraphyAreaPage } from "./CalligraphyAreaPage";
 import { GraphGridPage } from "./GraphGridPage";
 import { GridPageConfig } from "./GridPage";
 import {setupGridPreviews} from "./gridPreviewSetup";
-import {FieldConfig} from "./calliGridForm";
+import {FieldConfig} from "./FieldConfig";
 import {minimalFormConfigLine,minimalFormConfigArea,minimalFormConfigDot,minimalFormConfigGraph,balancedFormConfigLine,balancedFormConfigArea,balancedFormConfigDot,balancedFormConfigGraph,maximalFormConfigLine,maximalFormConfigArea,maximalFormConfigDot,maximalFormConfigGraph} from "./formConfig";
 import {saveSVGAsFile} from './saveSVG';
 import {generatePDF} from "./savePDF";
