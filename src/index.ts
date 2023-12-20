@@ -55,7 +55,7 @@ const gridConfig: GridPageConfig = {
 let currentGridConfig = {};
 let gridType!: GridType;
 let gridInstance;
-let viewType!: ConfigPersonality = 'minimal';
+let viewType!: ConfigPersonality;
 
 setupGridPreviews();
 
@@ -220,7 +220,7 @@ function createColorField(field) {
         inputElement.value = newValue;
         labelText.style.setProperty("--_c", newValue);
         if (inputElement.checked) {
-          updateGridAndConfigBasedOnValue(newValue, initValue, field.configName);
+          updateGridAndConfigBasedOnValue(newValue, initValue, field.configName, 'color', undefined);
         }
       });
     }
@@ -230,7 +230,7 @@ function createColorField(field) {
     colorFieldWrapper.appendChild(labelEl);
 
     inputElement.addEventListener("change", () => {
-      updateGridAndConfigBasedOnValue(inputElement.value, initValue, field.configName);
+      updateGridAndConfigBasedOnValue(inputElement.value, initValue, field.configName, 'color', undefined);
     });
   });
 
