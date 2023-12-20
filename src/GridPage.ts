@@ -141,7 +141,7 @@ export class GridPage {
     this.addTitleAndCopyright();
 
     if (this.#config.addAreaBox) {
-      this.#maskId = "grid-mask";
+      this.#maskId = this.generateUniqueId("grid-mask");
       this.drawMask();
       this.drawRectangle(this.#svg, "transparent", this.#config.areaStrokeColor!);
     }
@@ -258,6 +258,11 @@ export class GridPage {
     return parseFloat(n.toFixed(this.#config.coordinateDecimalPlaceMax!)).toString();
   }
 
+  private generateUniqueId(baseId:string): string {
+    const uniqueIdSuffix = Math.random().toString(36).substr(2, 5); // Generating a random unique string
+    return `${baseId}-${uniqueIdSuffix}`;
+  }
+
   private addTitleAndCopyright(): void {
     const copyrightFontSize = this.#config.textFontSize! * this.#copyrightSizeFactor;
     const copyrightTopPos = this.height - this.#config.documentMarginBottom!;
@@ -284,6 +289,7 @@ export class GridPage {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const viewBox = `0 0 ${this.width} ${this.height}`;
     svg.setAttribute("viewBox", viewBox);
+    svg.setAttribute('id', this.generateUniqueId('grid-page'));
     return svg;
   }
 

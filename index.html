@@ -89,7 +89,41 @@
           <h1 class="config__title">Guideline Maker</h1>
           <p>A super-flexible generator for Calligraphy Writing Paper. It also can make graph and dot grid paper, in PDF and SVG format and can be printed from within the browser.</p>
         </div>
-        <div id="formContainer"></div>
+        <form data-form-container>
+          <fieldset>
+            <legend>Grid Type</legend>
+            <div class="mini-previews">
+              <div class="mini-previews__prev">
+                <label>
+                  <input type="radio" name="grid-type" id="grid-type-calli-line" value="line" checked>
+                  <div class="mini-previews__svg-wrapper" data-calli-line-preview></div>
+                  <span>Calligraphy Line</span>
+                </label>
+              </div>
+              <div class="mini-previews__prev">
+                <label>
+                  <input type="radio" name="grid-type" id="grid-type-calli-area" value="area">
+                  <div class="mini-previews__svg-wrapper" data-calli-area-preview></div>
+                  <span>Calligraphy Area</span>
+                </label>
+              </div>
+              <div class="mini-previews__prev">
+                <label>
+                  <input type="radio" name="grid-type" id="grid-type-dot" value="dot">
+                  <div class="mini-previews__svg-wrapper" data-dot-preview></div>
+                  <span>Dot Grid</span>
+                </label>
+              </div>
+              <div class="mini-previews__prev">
+                <label>
+                  <input type="radio" name="grid-type" id="grid-type-graph" value="graph">
+                  <div class="mini-previews__svg-wrapper" data-graph-preview></div>
+                  <span>Graph</span>
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </form>
         <div class="config__outro">
           <h2>Export Quirks</h2>
           <p>The SVG with the area box creates a layer mask. This is not supported in PDF, thus depending on how you set up your SVG, the export might have slight overlaps in the rounded corners.</p>
@@ -111,7 +145,7 @@
     <footer>&copy; halfapx &middot; 2023</footer>
     <script
       type="module"
-      src="/src/main.ts"
+      src="/src/index.ts"
     ></script>
   </body>
 </html>
