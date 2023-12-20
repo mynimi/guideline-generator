@@ -6,6 +6,8 @@ import {CalligraphyAreaPage} from './CalligraphyAreaPage';
 import {GraphGridPage} from './GraphGridPage';
 import {GridPageBasicOtions, GridPageConfig} from './GridPage';
 
+const colorPresets = ['#A4DDED', '#b3b3b3', '#808080', '#000000', 'custom'];
+
 const previewConfig:GridPageConfig = {
   documentWidth: 40,
   documentHeight: 40,
@@ -435,7 +437,7 @@ viewSwitch.forEach(input => {
 });
 renderFields(viewType);
 
-function renderFields(configPersonality:ConfigPersonality){
+function renderFields(configPersonality:ConfigPersonality){  
   if (!fieldContainer) {
     console.error("Field container not found.");
     return;
@@ -460,46 +462,105 @@ function renderFields(configPersonality:ConfigPersonality){
 
   currentConfig.forEach((field) => {
     createField(field, fieldContainer);
+    const inputElement = fieldContainer.querySelector(`input[name="${field.configName}"]`);
+    if (inputElement) {
+      inputElement.addEventListener('change', (event) => {
+        const fieldValue = event.target.value;
+
+        if (fieldValue !== field.initValue) {
+          // Add the changed field to the object
+          currentGridConfig[field.configName] = fieldValue;
+        } else {
+          // Remove the field from the object if it reverts to its initial value
+          delete currentGridConfig[field.configName];
+        }
+
+        // Log the object with changed fields
+        initGrid(gridType);
+      });
+    }
   });
 }
 
-function createField(field:fieldConfig, parentEl:Element){
+function createColorField(field, label) {
+  const colorOptions = field.options || colorPresets;
+  const customColorInput = document.createElement('input');
+  const radioGroup = document.createElement('div');
+
+  radioGroup.classList.add('color-options');
+
+  colorOptions.forEach((color) => {
+    const radioInput = document.createElement('input');
+    radioInput.type = 'radio';
+    radioInput.name = `${field.configName}-options`;
+    radioInput.value = color;
+
+    const colorPreview = document.createElement('div');
+    colorPreview.style.backgroundColor = color;
+    colorPreview.classList.add('color-preview');
+
+    const labelColor = document.createElement('label');
+    labelColor.appendChild(radioInput);
+    labelColor.appendChild(colorPreview);
+
+    radioGroup.appendChild(labelColor);
+  });
+
+  customColorInput.type = 'color';
+  customColorInput.name = field.configName;
+  customColorInput.value = field.initValue || '';
+  customColorInput.classList.add('custom-color-input');
+  customColorInput.style.display = 'none'; // Initially hide the custom color input
+
+  radioGroup.addEventListener('change', (event) => {
+    const selectedValue = event.target.value;
+
+    if (selectedValue === 'custom') {
+      customColorInput.style.display = 'block'; // Show custom color input
+    } else {
+      customColorInput.style.display = 'none'; // Hide custom color input
+    }
+  });
+
+  label.appendChild(radioGroup);
+  label.appendChild(customColorInput);
+
+  return label;
+}
+
+function createField(field, parentEl) {
   const fieldWrapper = document.createElement('div');
   const label = document.createElement('label');
   const labelText = document.createElement('span');
-  const inputElement = document.createElement('input');
-  
+
   fieldWrapper.classList.add('field');
-  fieldWrapper.classList.add(`feild--${field.inputType}`);
+  fieldWrapper.classList.add(`field--${field.inputType}`);
 
   labelText.innerText = field.label;
-    
-  inputElement.setAttribute('type', field.inputType);
-  inputElement.setAttribute('name', field.configName);
-  inputElement.setAttribute('value', field.initValue);
-  
-  if(field.inputType != 'checkbox'){
-    if(field.initValue == 'true'){
-      inputElement.checked = true;
-    }
+
+  if (field.inputType === 'color') {
+    const colorField = createColorField(field, label);
     label.appendChild(labelText);
-    label.appendChild(inputElement);
+    fieldWrapper.appendChild(colorField);
   } else {
-    if (field.max !== undefined) {
-      inputElement.setAttribute('max', field.max.toString());
+    const inputElement = document.createElement('input');
+    inputElement.setAttribute('type', field.inputType);
+    inputElement.setAttribute('name', field.configName);
+    inputElement.setAttribute('value', field.initValue || '');
+
+    if (field.inputType === 'checkbox') {
+      if (field.initValue === 'true') {
+        inputElement.checked = true;
+      }
+      label.appendChild(inputElement);
+      label.appendChild(labelText);
+    } else {
+      label.appendChild(labelText);
+      label.appendChild(inputElement);
     }
 
-    if (field.min !== undefined) {
-      inputElement.setAttribute('min', field.min.toString());
-    }
-
-    if (field.step !== undefined) {
-      inputElement.setAttribute('step', field.step.toString());
-    }
-    label.appendChild(inputElement);
-    label.appendChild(labelText);
+    fieldWrapper.appendChild(label);
   }
 
-  fieldWrapper.appendChild(label);
   parentEl.appendChild(fieldWrapper);
 }
