@@ -6,7 +6,29 @@ import {CalligraphyAreaPage} from './CalligraphyAreaPage';
 import {GraphGridPage} from './GraphGridPage';
 import {GridPageBasicOtions, GridPageConfig} from './GridPage';
 
-const colorPresets = ['#A4DDED', '#b3b3b3', '#808080', '#000000', 'custom'];
+const colorOptions = [
+  {
+    label: 'non-photo blue',
+    value: '#A4DDED'
+  },
+  {
+    label: '30% Black',
+    value: '#b3b3b3'
+  },
+  {
+    label: '50% Black',
+    value: '#808080'
+  },
+  {
+    label: 'Black',
+    value: '#000000'
+  },
+  {
+    label: 'Custom (Enter Hexcode)',
+    value: '#ff0000',
+    isTextInput: true,
+  }
+]
 
 const previewConfig:GridPageConfig = {
   documentWidth: 40,
@@ -49,7 +71,7 @@ type InputTypes = 'number' | 'color' | 'checkbox';
 
 interface fieldConfig {
   label: string,
-  initValue:string,
+  initValue:string|boolean,
   inputType: InputTypes,
   configName: string,
   max?:number,
@@ -86,7 +108,7 @@ const basicConfigShared:fieldConfig[] = [
   },
   {
     label: 'Add Area Box',
-    initValue: 'true',
+    initValue: true,
     inputType: 'checkbox',
     configName: 'addAreaBox',
   },
@@ -141,7 +163,7 @@ const balancedConfigShared:fieldConfig[] = [
 const maximalConfigShared:fieldConfig[] = [
   {
     label: 'Add Title',
-    initValue: 'true',
+    initValue: true,
     inputType: 'checkbox',
     configName: 'addTitle'
   }
@@ -204,7 +226,7 @@ const maximalConfigArea:fieldConfig[]=[
   },
   {
     label: 'Add Divider Lines',
-    initValue: 'true',
+    initValue: true,
     inputType: 'checkbox',
     configName: 'addDividerLines'
   }
@@ -279,7 +301,7 @@ const balancedConfigLine:fieldConfig[]=[
   },
   {
     label: 'Show X Height Indicator',
-    initValue: 'true',
+    initValue: true,
     inputType: 'checkbox',
     configName: 'showXHeightIndicator'
   },
@@ -301,7 +323,7 @@ const maximalConfigLine:fieldConfig[]=[
   },
   {
     label: 'Add Divider Lines',
-    initValue: 'true',
+    initValue: true,
     inputType: 'checkbox',
     configName: 'addDividerLines'
   }
@@ -462,70 +484,111 @@ function renderFields(configPersonality:ConfigPersonality){
 
   currentConfig.forEach((field) => {
     createField(field, fieldContainer);
-    const inputElement = fieldContainer.querySelector(`input[name="${field.configName}"]`);
-    if (inputElement) {
-      inputElement.addEventListener('change', (event) => {
-        const fieldValue = event.target.value;
-
-        if (fieldValue !== field.initValue) {
-          // Add the changed field to the object
-          currentGridConfig[field.configName] = fieldValue;
-        } else {
-          // Remove the field from the object if it reverts to its initial value
-          delete currentGridConfig[field.configName];
-        }
-
-        // Log the object with changed fields
-        initGrid(gridType);
-      });
-    }
   });
 }
 
-function createColorField(field, label) {
-  const colorOptions = field.options || colorPresets;
-  const customColorInput = document.createElement('input');
-  const radioGroup = document.createElement('div');
+function createColorField(field) {
+  const colorFieldWrapper = document.createElement('fieldset');
+  const legend = document.createElement('legend');
+  const initValue = field.initValue;
+  colorFieldWrapper.classList.add('color-group');
+  legend.innerHTML = field.label;
 
-  radioGroup.classList.add('color-options');
+  colorFieldWrapper.appendChild(legend);
 
   colorOptions.forEach((color) => {
-    const radioInput = document.createElement('input');
-    radioInput.type = 'radio';
-    radioInput.name = `${field.configName}-options`;
-    radioInput.value = color;
+    const inputElement = document.createElement('input');
+    const labelEl = document.createElement('label');
+    const labelText = document.createElement('span');
+    labelText.style.setProperty('--_c', color.value);
+    labelText.innerText = color.label;
 
-    const colorPreview = document.createElement('div');
-    colorPreview.style.backgroundColor = color;
-    colorPreview.classList.add('color-preview');
+    inputElement.setAttribute('type', 'radio');
+    inputElement.setAttribute('name', field.configName);
+    inputElement.setAttribute('value', color.value);
 
-    const labelColor = document.createElement('label');
-    labelColor.appendChild(radioInput);
-    labelColor.appendChild(colorPreview);
-
-    radioGroup.appendChild(labelColor);
-  });
-
-  customColorInput.type = 'color';
-  customColorInput.name = field.configName;
-  customColorInput.value = field.initValue || '';
-  customColorInput.classList.add('custom-color-input');
-  customColorInput.style.display = 'none'; // Initially hide the custom color input
-
-  radioGroup.addEventListener('change', (event) => {
-    const selectedValue = event.target.value;
-
-    if (selectedValue === 'custom') {
-      customColorInput.style.display = 'block'; // Show custom color input
-    } else {
-      customColorInput.style.display = 'none'; // Hide custom color input
+    if(color.value == initValue){
+      inputElement.checked = true
     }
+
+    if(color.isTextInput){
+      const customColorText = document.createElement('input');
+      customColorText.setAttribute('type', 'text');
+      customColorText.setAttribute('aria-label', 'Add Custom Color (in Hex Format)');
+      customColorText.setAttribute('pattern', '^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$');
+      customColorText.setAttribute('maxlength', '7');
+      customColorText.value = color.value;
+      labelText.appendChild(customColorText);
+
+      customColorText.addEventListener('change', () => {
+        const newValue = customColorText.value
+        inputElement.value = newValue;
+        labelText.style.setProperty('--_c', newValue);
+        if(inputElement.checked){
+          updateGridAndConfigBasedOnValue(newValue, initValue, field.configName);
+        } else {
+          console.log('we don not matter');
+        }
+      });
+    }
+
+    if(color.isColorInput){}
+
+    labelEl.appendChild(inputElement);
+    labelEl.appendChild(labelText);
+    colorFieldWrapper.appendChild(labelEl);
+    
+    inputElement.addEventListener('change', () => {
+      updateGridAndConfigBasedOnValue(inputElement.value, initValue, field.configName);
+    });
   });
 
-  label.appendChild(radioGroup);
-  label.appendChild(customColorInput);
+  return colorFieldWrapper;
 
-  return label;
+  // colorOptions.forEach((colorOption) => {
+  //   const radioInput = document.createElement('input');
+  //   radioInput.setAttribute('type', 'radio');
+  //   radioInput.setAttribute('name', field.configName);
+  //   radioInput.setAttribute('value', colorOption.value);
+
+  //   const radioLabel = document.createElement('label');
+  //   radioLabel.innerText = colorOption.label;
+
+  //   const radioDiv = document.createElement('div');
+  //   radioDiv.appendChild(radioInput);
+  //   radioDiv.appendChild(radioLabel);
+  //   radioGroup.appendChild(radioDiv);
+
+  //   radioInput.addEventListener('change', () => {
+  //     if (radioInput.checked) {
+  //       if (colorOption.value === 'custom-hex') {
+  //         const customHexInput = document.createElement('input');
+  //         customHexInput.setAttribute('type', 'text');
+  //         customHexInput.setAttribute('placeholder', 'Enter hexcode');
+
+  //         customHexInput.addEventListener('input', () => {
+  //           radioInput.value = customHexInput.value;
+  //           initGrid(gridType);
+  //         });
+
+  //         colorFieldWrapper.appendChild(customHexInput);
+  //       } else if (colorOption.value === 'custom-color') {
+  //         const customColorInput = document.createElement('input');
+  //         customColorInput.setAttribute('type', 'color');
+
+  //         customColorInput.addEventListener('input', () => {
+  //           radioInput.value = customColorInput.value;
+  //           initGrid(gridType);
+  //         });
+
+  //         colorFieldWrapper.appendChild(customColorInput);
+  //       }
+  //     }
+  //   });
+  // });
+
+  // colorFieldWrapper.appendChild(radioGroup);
+
 }
 
 function createField(field, parentEl) {
@@ -539,8 +602,7 @@ function createField(field, parentEl) {
   labelText.innerText = field.label;
 
   if (field.inputType === 'color') {
-    const colorField = createColorField(field, label);
-    label.appendChild(labelText);
+    const colorField = createColorField(field);
     fieldWrapper.appendChild(colorField);
   } else {
     const inputElement = document.createElement('input');
@@ -549,7 +611,7 @@ function createField(field, parentEl) {
     inputElement.setAttribute('value', field.initValue || '');
 
     if (field.inputType === 'checkbox') {
-      if (field.initValue === 'true') {
+      if (field.initValue === true) {
         inputElement.checked = true;
       }
       label.appendChild(inputElement);
@@ -560,7 +622,21 @@ function createField(field, parentEl) {
     }
 
     fieldWrapper.appendChild(label);
+
+    inputElement.addEventListener('change', () => {
+      const fieldValue = (field.inputType == 'checkbox') ? inputElement.checked : inputElement.value;
+      updateGridAndConfigBasedOnValue(fieldValue, field.initValue, field.configName);
+    });
   }
 
   parentEl.appendChild(fieldWrapper);
+}
+
+function updateGridAndConfigBasedOnValue(value, initValue, configName){
+  if(value !== initValue){
+    currentGridConfig[configName] = value;
+  } else {
+    delete currentGridConfig[configName];
+  }
+  initGrid(gridType);
 }

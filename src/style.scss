@@ -449,7 +449,28 @@ label {
   }
 }
 
-.color-preview {
-  width: 2rem;
-  height: 1em;
+.color-group {
+  label {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    
+    span {
+      --_s-prev: 1.3em;
+      display: block;
+      padding-left: calc(var(--_s-prev) + .3em);
+      position: relative;
+
+      &::before {
+        content: '';
+        width: var(--_s-prev);
+        aspect-ratio: 1;
+        background: var(--_c);
+        top: 0;
+        left: 0;
+        position: absolute;
+        border-radius: 50%; ;
+      }
+    }
+  }
 }
