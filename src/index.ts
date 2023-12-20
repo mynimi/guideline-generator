@@ -10,6 +10,8 @@ import { GridPageConfig } from "./GridPage";
 import {setupGridPreviews} from "./gridPreviewSetup";
 import {FieldConfig} from "./calliGridForm";
 import {minimalFormConfigLine,minimalFormConfigArea,minimalFormConfigDot,minimalFormConfigGraph,balancedFormConfigLine,balancedFormConfigArea,balancedFormConfigDot,balancedFormConfigGraph,maximalFormConfigLine,maximalFormConfigArea,maximalFormConfigDot,maximalFormConfigGraph} from "./formConfig";
+import {saveSVGAsFile} from './saveSVG';
+import {generatePDF} from "./savePDF";
 
 type GridType = "line" | "area" | "dot" | "graph";
 type ConfigPersonality = "minimal" | "balanced" | "maximal";
@@ -42,6 +44,9 @@ const gridContainer = document.querySelector("[data-svg-preview]");
 const gridPicker = document.querySelectorAll('input[name="grid-type"]');
 const viewSwitch = document.querySelectorAll('input[name="config-type"]');
 const fieldContainer = document.querySelector("[data-field-container]");
+const downloadButton = document.getElementById('downloadButton');
+const dlBtn = document.querySelector('[data-download-pdf]');
+
 const gridConfig: GridPageConfig = {
   container: gridContainer,
 };
@@ -67,6 +72,16 @@ viewSwitch.forEach((input) => {
     handleViewChange(input);
   });
 });
+
+downloadButton.addEventListener('click', function() {
+  console.log(gridInstance);
+  saveSVGAsFile(gridInstance);
+});
+
+dlBtn?.addEventListener('click', () => {
+  generatePDF(gridInstance)
+});
+
 
 function initGrid(type) {
   let newGrid;

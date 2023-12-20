@@ -1,8 +1,6 @@
-import {CalliGrid} from "./calliGrid";
-
-export function saveSVGAsFile(gridInstance: CalliGrid) {
-  const fileName = gridInstance.generateGridName('file');
-  const svgContent = new XMLSerializer().serializeToString(gridInstance.svg as SVGSVGElement);
+export function saveSVGAsFile(gridInstance) {
+  const fileName = gridInstance.fileName;
+  const svgContent = new XMLSerializer().serializeToString(gridInstance.svgElement as SVGSVGElement);
   const blob = new Blob([svgContent], { type: 'image/svg+xml' });
 
   const link = document.createElement('a');

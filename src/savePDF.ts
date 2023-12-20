@@ -1,7 +1,6 @@
 import { jsPDF } from 'jspdf'
 import 'svg2pdf.js'
 
-import {CalliGrid} from './calliGrid';
 import {jsPDFOptions} from 'jspdf';
 
 type orientationConfig = "p" | "portrait" | "l" | "landscape"
@@ -13,11 +12,11 @@ function getOrientation(width:number, height:number): orientationConfig{
   return orientation;
 }
 
-export function generatePDF(gridInstance:CalliGrid){
-  const svg = gridInstance.svg;
+export function generatePDF(gridInstance){
+  const svg = gridInstance.svgElement;
   const width = gridInstance.width;
   const height = gridInstance.height;
-  const fileName = gridInstance.generateGridName('file');
+  const fileName = gridInstance.fileName;
   const orientation:undefined|"p" | "portrait" | "l" | "landscape" = getOrientation(width, height);
   const docOptions: jsPDFOptions = {
     unit: 'mm',
@@ -30,7 +29,6 @@ export function generatePDF(gridInstance:CalliGrid){
       height: height
     })
     .then(() => {
-      // save the created pdf
       doc.save(`${fileName}.pdf`)
     })
 }
