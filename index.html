@@ -123,6 +123,16 @@
               </div>
             </div>
           </fieldset>
+          <fieldset class="view-switch">
+            <legend>How many options should be displayed?</legend>
+            <input type="radio" name="config-type" value="minimal" checked id="config-type-minimal" class="visually-hidden">
+            <label for="config-type-minimal">Minimal</label>
+            <input type="radio" name="config-type" value="balanced" id="config-type-balanced" class="visually-hidden">
+            <label for="config-type-balanced">Balanced</label>
+            <input type="radio" name="config-type" value="maximal" id="config-type-maximal" class="visually-hidden">
+            <label for="config-type-maximal">Maximal</label>
+          </fieldset>
+          <div data-field-container></div>
         </form>
         <div class="config__outro">
           <h2>Export Quirks</h2>
