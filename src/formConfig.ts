@@ -14,10 +14,12 @@ import {
   generateMinimalConfigDot,
   generateBalancedConfigDot,
   generateMaximalConfigDot,
+  generateFieldsets,
 } from "./configGenerator";
 
-import { FieldConfig } from "./FieldConfig.ts";
+import { FieldConfig, FieldSet } from "./FieldConfig.ts";
 
+export const allFieldSets:FieldSet[] = generateFieldsets();
 const basicConfigShared: FieldConfig[] = generateBasicConfig();
 const balancedConfigShared: FieldConfig[] = generateBalancedConfig();
 const maximalConfigShared: FieldConfig[] = generateMaximalConfig();
@@ -34,15 +36,15 @@ const minimalConfigDot: FieldConfig[] = generateMinimalConfigDot();
 const balancedConfigDot: FieldConfig[] = generateBalancedConfigDot();
 const maximalConfigDot: FieldConfig[] = generateMaximalConfigDot();
 
-export const minimalFormConfigLine: FieldConfig[] = [...basicConfigShared, ...minimalConfigLine];
-export const balancedFormConfigLine: FieldConfig[] = [...balancedConfigShared, ...balancedConfigLine];
-export const maximalFormConfigLine: FieldConfig[] = [...maximalConfigShared, ...maximalConfigLine];
-export const minimalFormConfigArea: FieldConfig[] = [...basicConfigShared, ...minimalConfigArea];
-export const balancedFormConfigArea: FieldConfig[] = [...balancedConfigShared, ...balancedConfigArea];
-export const maximalFormConfigArea: FieldConfig[] = [...maximalConfigShared, ...maximalConfigArea];
-export const minimalFormConfigDot: FieldConfig[] = [...basicConfigShared, ...minimalConfigDot];
-export const balancedFormConfigDot: FieldConfig[] = [...balancedConfigShared, ...balancedConfigDot];
-export const maximalFormConfigDot: FieldConfig[] = [...maximalConfigShared, ...maximalConfigDot];
-export const minimalFormConfigGraph: FieldConfig[] = [...basicConfigShared, ...minimalConfigGraph];
-export const balancedFormConfigGraph: FieldConfig[] = [...balancedConfigShared, ...balancedConfigGraph];
-export const maximalFormConfigGraph: FieldConfig[] = [...maximalConfigShared, ...maximalConfigGraph];
+export const minimalFormConfigLine: FieldConfig[] = [...minimalConfigLine, ...basicConfigShared];
+export const balancedFormConfigLine: FieldConfig[] = [...balancedConfigLine, ...balancedConfigShared];
+export const maximalFormConfigLine: FieldConfig[] = [...maximalConfigLine, ...maximalConfigShared];
+export const minimalFormConfigArea: FieldConfig[] = [...minimalConfigArea, ...basicConfigShared];
+export const balancedFormConfigArea: FieldConfig[] = [...balancedConfigArea, ...balancedConfigShared];
+export const maximalFormConfigArea: FieldConfig[] = [...maximalConfigArea, ...maximalConfigShared];
+export const minimalFormConfigDot: FieldConfig[] = [...minimalConfigDot, ...basicConfigShared];
+export const balancedFormConfigDot: FieldConfig[] = [...balancedConfigDot, ...balancedConfigShared];
+export const maximalFormConfigDot: FieldConfig[] = [...maximalConfigDot, ...maximalConfigShared];
+export const minimalFormConfigGraph: FieldConfig[] = [...minimalConfigGraph, ...basicConfigShared];
+export const balancedFormConfigGraph: FieldConfig[] = [...balancedConfigGraph, ...balancedConfigShared];
+export const maximalFormConfigGraph: FieldConfig[] = [...maximalConfigGraph, ...maximalConfigShared];

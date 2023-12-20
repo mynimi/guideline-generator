@@ -13,7 +13,6 @@ export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOtions {
 
 export interface CalligraphyAreaPageExtendedOptions extends GridPageExtendedOptions {
   gridStrokeWidth?: number;
-  areaBlockBuffer?: number;
   slantAngleGap?: number;
   slantLineMinLength?: number;
   addDividerLines?: boolean;
@@ -41,17 +40,16 @@ export class CalligraphyAreaPage extends GridPage {
       xHeight: 7,
       slantAngle: 55, // must be below 90
       slantAngleGap: 10,
-      areaBlockBuffer: 7,
       addDividerLines: true,
       slantLineMinLength: 10,
     };
-    this.#config = { ...this.#defaults, ...options };
     if ("color" in options) {
-      this.#config.lineColor = options.color;
+      this.#defaults.lineColor = options.color;
     }
     if ("stroke" in options) {
-      this.#config.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke;
     }
+    this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
     this.#fileName = this.generateName("file");
 

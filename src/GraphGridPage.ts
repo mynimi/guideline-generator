@@ -28,13 +28,13 @@ export class GraphGridPage extends GridPage {
       gridStrokeWidth: parentDefaults.stroke,
       cellSize: 5,
     }
-    this.#config = { ...this.#defaults, ...options };
     if ('color' in options) {
-      this.#config.lineColor = options.color;
+      this.#defaults.lineColor = options.color;
     }
     if('stroke' in options){
-      this.#config.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke;
     }
+    this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
     this.#fileName = this.generateName('file');
 

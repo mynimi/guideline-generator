@@ -74,13 +74,13 @@ export class CalligraphyLinePage extends GridPage {
       areaBlockBuffer: 7,
       addDividerLines:true,
     }
-    this.#config = { ...this.#defaults, ...options };
     if ('color' in options) {
-      this.#config.lineColor = options.color;
+      this.#defaults.lineColor = options.color;
     }
     if('stroke' in options){
-      this.#config.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke;
     }
+    this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
     this.#fileName = this.generateName('file');
 

@@ -28,13 +28,13 @@ export class DotGridPage extends GridPage {
       dotSize: 0.4,
       cellSize: 5,
     }
-    this.#config = { ...this.#defaults, ...options };
     if ('color' in options) {
-      this.#config.lineColor = options.color;
+      this.#defaults.lineColor = options.color;
     }
     if('stroke' in options){
-      this.#config.dotSize = options.stroke;
+      this.#defaults.dotSize = options.stroke;
     }
+    this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
     this.#fileName = this.generateName('file');
 

@@ -127,13 +127,13 @@ export class GridPage {
       addTitle: true,
     };
 
-    this.#config = { ...this.#defaults, ...options };
     if ("color" in options) {
-      this.#config.areaStrokeColor = options.color;
+      this.#defaults.areaStrokeColor = options.color;
     }
     if ("stroke" in options) {
-      this.#config.areaStrokeWidth = options.stroke;
+      this.#defaults.areaStrokeWidth = options.stroke;
     }
+    this.#config = { ...this.#defaults, ...options };
   }
 
   init(): void {
@@ -254,8 +254,8 @@ export class GridPage {
     parentEl.appendChild(line);
   }
 
-  formatCoordinate(n: number): string {
-    return parseFloat(n.toFixed(this.#config.coordinateDecimalPlaceMax!)).toString();
+  formatCoordinate(n: number): string { 
+    return parseFloat(n.toFixed(this.#config.coordinateDecimalPlaceMax)).toString();
   }
 
   private generateUniqueId(baseId:string): string {

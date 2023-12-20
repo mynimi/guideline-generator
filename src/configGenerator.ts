@@ -1,6 +1,33 @@
+/** @format */
 
-export function  generateFieldConfig(label, initValue, inputType, configName, additionalProps = {}) {
+import { FieldConfig, FieldSet, fieldSetId } from "./FieldConfig";
+
+export function generateFieldsets(): FieldSet[] {
+  return [
+    generateFieldset("general", "General (color and stroke override all other defaults, unless specifically overwritten)"),
+    generateFieldset("doc", "Document Setup (in mm)"),
+    generateFieldset("areaBox", "Area Box"),
+    generateFieldset("gridLine", "Grid Line"),
+    generateFieldset("slantLine", "Slant Line"),
+  ];
+}
+export function generateFieldset(id: fieldSetId, label: string): FieldSet {
   return {
+    id,
+    label,
+  };
+}
+
+export function generateFieldConfig(
+  fieldset: fieldSetId,
+  label,
+  initValue,
+  inputType,
+  configName,
+  additionalProps = {}
+): FieldConfig {
+  return {
+    fieldset,
     label,
     initValue,
     inputType,
@@ -9,127 +36,142 @@ export function  generateFieldConfig(label, initValue, inputType, configName, ad
   };
 }
 
-export function  generateBasicConfig() {
+export function generateBasicOnly(): FieldConfig[] {
   return [
-    generateFieldConfig("Document Width", "210", "number", "documentWidth"),
-    generateFieldConfig("Document Height", "297", "number", "documentHeight"),
-    generateFieldConfig("Color", "#000000", "color", "color"),
-    generateFieldConfig("Stroke", "1", "number", "stroke", { step: 0.1 }),
-    generateFieldConfig("Add Area Box", true, "checkbox", "addAreaBox"),
+    generateFieldConfig("general", "Color", "#000000", "color", "color",),
+    generateFieldConfig("general", "Stroke", "0.2", "number", "stroke", { step: 0.1 }),
   ];
 }
 
-export function  generateBalancedConfig() {
-  const basicConfigs = generateBasicConfig();
+export function generateBasicShared(): FieldConfig[] {
+  return [
+    generateFieldConfig("doc", "Document Width (in mm)", 210, "number", "documentWidth"),
+    generateFieldConfig("doc", "Document Height (in mm)", 297, "number", "documentHeight"),
+  ];
+}
+
+export function generateBasicConfig(): FieldConfig[] {
+  const basicOnly = generateBasicOnly();
+  const basicShared = generateBasicShared();
+  return [...basicShared, ...basicOnly];
+}
+
+export function generateBalancedConfig(): FieldConfig[] {
+  const basicConfigs = generateBasicShared();
   return [
     ...basicConfigs,
-    generateFieldConfig("Document Margin Top", "10", "number", "documentMarginTop"),
-    generateFieldConfig("Document Margin Bottom", "10", "number", "documentMarginBottom"),
-    generateFieldConfig("Document Margin Left", "7", "number", "documentMarginLeft"),
-    generateFieldConfig("Document Margin Right", "7", "number", "documentMarginRight"),
-    generateFieldConfig("Area Border Radius", "5", "number", "areaBorderRadius"),
-    generateFieldConfig("Area Stroke Width", "1", "number", "areaStrokeWidth", { step: 0.1 }),
-    generateFieldConfig("Area Stroke Color", "#000000", "color", "areaStrokeColor"),
+    generateFieldConfig("areaBox", "Add Area Box", true, "checkbox", "addAreaBox"),
+    generateFieldConfig("areaBox", "Area Border Radius", 5, "number", "areaBorderRadius"),
+    generateFieldConfig("areaBox", "Area Stroke Width", 0.2, "number", "areaStrokeWidth", { step: 0.1 }),
+    generateFieldConfig("areaBox", "Area Stroke Color", "#000000", "color", "areaStrokeColor"),
+    generateFieldConfig("doc", "Document Margin Top", 10, "number", "documentMarginTop"),
+    generateFieldConfig("doc", "Document Margin Top", 10, "number", "documentMarginBottom"),
+    generateFieldConfig("doc", "Document Margin Left", 7, "number", "documentMarginLeft"),
+    generateFieldConfig("doc", "Document Margin Right", 7, "number", "documentMarginRight"),
   ];
 }
 
-export function  generateMaximalConfig() {
+export function generateMaximalConfig(): FieldConfig[] {
   const balancedConfigs = generateBalancedConfig();
-  return [...balancedConfigs, generateFieldConfig("Add Title", true, "checkbox", "addTitle")];
+  return [...balancedConfigs, generateFieldConfig("general", "Add Title", true, "checkbox", "addTitle")];
 }
 
-export function  generateMinimalConfigArea() {
+export function generateMinimalConfigArea(): FieldConfig[] {
   return [
-    generateFieldConfig("Line Color", "#000000", "color", "lineColor"),
-    generateFieldConfig("X Height", "7", "number", "xHeight", { min: 0 }),
-    generateFieldConfig("Slant Angle", "55", "number", "slantAngle", { max: 90, min: 0, step: 1 }),
+    generateFieldConfig("gridLine", "X Height (in mm)", 7, "number", "xHeight", { min: 0 }),
+    generateFieldConfig("slantLine", "Slant Angle (in °)", 55, "number", "slantAngle", { max: 89, min: 0, step: 1 }),
   ];
 }
 
-export function  generateBalancedConfigArea() {
+export function generateBalancedConfigArea(): FieldConfig[] {
   const minimalConfigs = generateMinimalConfigArea();
   return [
     ...minimalConfigs,
-    generateFieldConfig("Grid Stroke Width", "parentDefaults.stroke", "number", "gridStrokeWidth", { min: 0 }),
-    generateFieldConfig("Area Block Buffer", "7", "number", "areaBlockBuffer", { min: 0 }),
-    generateFieldConfig("Slant Angle Gap", "10", "number", "slantAngleGap", { min: 0 }),
+    generateFieldConfig("gridLine", "Line Color", "#000000", "color", "lineColor"),
+    generateFieldConfig("gridLine", "Grid Stroke Width", 0.2, "number", "gridStrokeWidth", { min: 0, step: 0.1 }),
+    generateFieldConfig("slantLine", "Slant Angle Gap", 10, "number", "slantAngleGap", { min: 0 }),
   ];
 }
 
-export function  generateMaximalConfigArea() {
+export function generateMaximalConfigArea(): FieldConfig[] {
   const balancedConfigs = generateBalancedConfigArea();
   return [
     ...balancedConfigs,
-    generateFieldConfig("Slant Line Min Length", "10", "number", "slantLineMinLength", { min: 0 }),
-    generateFieldConfig("Add Divider Lines", true, "checkbox", "addDividerLines"),
+    generateFieldConfig("slantLine", "Slant Line Min Length", 10, "number", "slantLineMinLength", { min: 0 }),
+    generateFieldConfig("gridLine", "Add Divider Lines", true, "checkbox", "addDividerLines"),
   ];
 }
 
-export function  generateMinimalConfigLine() {
+export function generateMinimalConfigLine(): FieldConfig[] {
   return [
-    generateFieldConfig("Line Color", "#000000", "color", "lineColor"),
-    generateFieldConfig("X Height", "7", "number", "xHeight", { min: 0 }),
-    generateFieldConfig("Ratio Ascender", "3", "number", "ratioAscender", { min: 0 }),
-    generateFieldConfig("Ratio Base", "2", "number", "ratioBase", { min: 0 }),
-    generateFieldConfig("Ratio Descender", "3", "number", "ratioDescender", { min: 0 }),
-    generateFieldConfig("Slant Angle", "55", "number", "slantAngle", { max: 90, min: 0, step: 1 }),
+    generateFieldConfig("gridLine", "X Height", 7, "number", "xHeight", { min: 0 }),
+    generateFieldConfig("gridLine", "Ratio Ascender", 3, "number", "ratioAscender", { min: 0 }),
+    generateFieldConfig("gridLine", "Ratio Base", 2, "number", "ratioBase", { min: 0 }),
+    generateFieldConfig("gridLine", "Ratio Descender", 3, "number", "ratioDescender", { min: 0 }),
+    generateFieldConfig("slantLine", "Slant Angle", 55, "number", "slantAngle", { max: 90, min: 0, step: 1 }),
   ];
 }
 
-export function  generateBalancedConfigLine() {
+export function generateBalancedConfigLine(): FieldConfig[] {
   const minimalConfigs = generateMinimalConfigLine();
   return [
     ...minimalConfigs,
-    generateFieldConfig("Grid Stroke Width", "parentDefaults.stroke", "number", "gridStrokeWidth", { min: 0 }),
-    generateFieldConfig("Grid Base Line Stroke Width", "0.5", "number", "gridBaseLineStrokeWidth", { min: 0 }),
-    generateFieldConfig("Area Block Buffer", "7", "number", "areaBlockBuffer", { min: 0 }),
-    generateFieldConfig("Show X Height Indicator", true, "checkbox", "showXHeightIndicator"),
-    generateFieldConfig("X Height Indicator Stroke Width", "2", "number", "xHeightIndicatorStrokeWidth", { min: 0 }),
+    generateFieldConfig("gridLine", "Line Color", "#000000", "color", "lineColor"),
+    generateFieldConfig("gridLine", "Grid Stroke Width", 0.2, "number", "gridStrokeWidth", { min: 0, step: 0.1 }),
+    generateFieldConfig("gridLine", "Grid Base Line Stroke Width", 0.5, "number", "gridBaseLineStrokeWidth", {
+      min: 0,
+      step: 0.1,
+    }),
+    generateFieldConfig("areaBox", "Area Block Buffer", 7, "number", "areaBlockBuffer", { min: 0 }),
+    generateFieldConfig("gridLine", "Show X Height Indicator", true, "checkbox", "showXHeightIndicator"),
+    generateFieldConfig("gridLine", "X Height Indicator Stroke Width", 2, "number", "xHeightIndicatorStrokeWidth", {
+      min: 0,
+      step: 0.1,
+    }),
+    generateFieldConfig("gridLine", "Add Divider Lines", true, "checkbox", "addDividerLines"),
   ];
 }
 
-export function  generateMaximalConfigLine() {
+export function generateMaximalConfigLine(): FieldConfig[] {
   const balancedConfigs = generateBalancedConfigLine();
   return [
     ...balancedConfigs,
-    generateFieldConfig("Slant Lines Per Line", "10", "number", "slantLinesPerLine", { min: 0 }),
-    generateFieldConfig("Add Divider Lines", true, "checkbox", "addDividerLines"),
+    generateFieldConfig("slantLine", "Slant Lines Per Line", 10, "number", "slantLinesPerLine", { min: 0 }),
   ];
 }
 
-export function  generateMinimalConfigGraph() {
-  return [
-    generateFieldConfig("Line Color", "#000000", "color", "lineColor"),
-    generateFieldConfig("Cell Size", "5", "number", "cellSize", { min: 0 }),
-  ];
+export function generateMinimalConfigGraph(): FieldConfig[] {
+  return [generateFieldConfig("gridLine", "Cell Size", "5", "number", "cellSize", { min: 0 })];
 }
 
-export function  generateBalancedConfigGraph() {
+export function generateBalancedConfigGraph(): FieldConfig[] {
   const minimalConfigs = generateMinimalConfigGraph();
   return [
     ...minimalConfigs,
-    generateFieldConfig("Grid Stroke Width", "parentDefaults.stroke", "number", "gridStrokeWidth", { min: 0 }),
+    generateFieldConfig("gridLine", "Grid Stroke Width", 0.2, "number", "gridStrokeWidth", { min: 0, step: 0.1 }),
+    generateFieldConfig("gridLine", "Line Color", "#000000", "color", "lineColor"),
   ];
 }
 
-export function  generateMaximalConfigGraph() {
+export function generateMaximalConfigGraph(): FieldConfig[] {
   const balancedConfigs = generateBalancedConfigGraph();
   return [...balancedConfigs];
 }
 
-export function  generateMinimalConfigDot() {
+export function generateMinimalConfigDot(): FieldConfig[] {
+  return [generateFieldConfig("gridLine", "Cell Size", 5, "number", "cellSize", { min: 0 })];
+}
+
+export function generateBalancedConfigDot(): FieldConfig[] {
+  const minimalConfigs = generateMinimalConfigDot();
   return [
-    generateFieldConfig("Line Color", "#000000", "color", "lineColor"),
-    generateFieldConfig("Cell Size", "5", "number", "cellSize", { min: 0 }),
+    ...minimalConfigs,
+    generateFieldConfig("general", "Dot Size", 0.4, "number", "dotSize", { min: 0, step: 0.1 }),
+    generateFieldConfig("gridLine", "Line Color", "#000000", "color", "lineColor"),
   ];
 }
 
-export function  generateBalancedConfigDot() {
-  const minimalConfigs = generateMinimalConfigDot();
-  return [...minimalConfigs, generateFieldConfig("Dot Size", "0.4", "number", "dotSize", { min: 0 })];
-}
-
-export function  generateMaximalConfigDot() {
+export function generateMaximalConfigDot(): FieldConfig[] {
   const balancedConfigs = generateBalancedConfigDot();
   return [...balancedConfigs];
 }

@@ -9,7 +9,7 @@ import { GraphGridPage } from "./GraphGridPage";
 import { GridPageConfig } from "./GridPage";
 import {setupGridPreviews} from "./gridPreviewSetup";
 import {FieldConfig} from "./FieldConfig";
-import {minimalFormConfigLine,minimalFormConfigArea,minimalFormConfigDot,minimalFormConfigGraph,balancedFormConfigLine,balancedFormConfigArea,balancedFormConfigDot,balancedFormConfigGraph,maximalFormConfigLine,maximalFormConfigArea,maximalFormConfigDot,maximalFormConfigGraph} from "./formConfig";
+import {allFieldSets,minimalFormConfigLine,minimalFormConfigArea,minimalFormConfigDot,minimalFormConfigGraph,balancedFormConfigLine,balancedFormConfigArea,balancedFormConfigDot,balancedFormConfigGraph,maximalFormConfigLine,maximalFormConfigArea,maximalFormConfigDot,maximalFormConfigGraph} from "./formConfig";
 import {saveSVGAsFile} from './saveSVG';
 import {generatePDF} from "./savePDF";
 
@@ -55,16 +55,9 @@ const gridConfig: GridPageConfig = {
 let currentGridConfig = {};
 let gridType!: GridType;
 let gridInstance;
-let viewType!: ConfigPersonality;
+let viewType!: ConfigPersonality = 'minimal';
 
 setupGridPreviews();
-
-gridPicker.forEach((input) => {
-  handleGridChange(input);
-  input.addEventListener("change", () => {
-    handleGridChange(input);
-  });
-});
 
 viewSwitch.forEach((input) => {
   handleViewChange(input);
@@ -73,8 +66,14 @@ viewSwitch.forEach((input) => {
   });
 });
 
+gridPicker.forEach((input) => {
+  handleGridChange(input);
+  input.addEventListener("change", () => {
+    handleGridChange(input);
+  });
+});
+
 downloadButton.addEventListener('click', function() {
-  console.log(gridInstance);
   saveSVGAsFile(gridInstance);
 });
 
@@ -123,6 +122,7 @@ function handleGridChange(input) {
   if (input.checked) {
     gridType = input.value;
     initGrid(gridType);
+    renderFields(viewType);
   }
 }
 
@@ -175,9 +175,10 @@ function renderFields(configPersonality: ConfigPersonality) {
 
   const currentConfig = getConfig(configPersonality, gridType);
 
-  currentConfig.forEach((field) => {
-    createField(field, fieldContainer);
-  });
+  if(currentConfig){
+    console.log('render fields');
+    createFieldSets(currentConfig, fieldContainer);
+  }
 }
 
 function createColorField(field) {
@@ -236,23 +237,61 @@ function createColorField(field) {
   return colorFieldWrapper;
 }
 
+function groupFields(currentConfig){
+  const groupedFields = {};
+  currentConfig.forEach(item => {
+    const { fieldset, ...rest } = item;
+    if (!groupedFields[fieldset]) {
+      groupedFields[fieldset] = {
+        fieldsetInfo: allFieldSets.find(group => group.id === fieldset),
+        fields: [],
+      };
+    }
+    groupedFields[fieldset].fields.push(rest);
+  });
+  return groupedFields;
+}
+
+function createFieldSets(currentConfig, parentEl){
+  const groupedFields = groupFields(currentConfig);
+  Object.keys(groupedFields).forEach(fieldsetId => {
+    const group = groupedFields[fieldsetId];
+    const fieldSetEl = document.createElement('fieldset');
+    const legendEl = document.createElement('legend');
+    legendEl.innerHTML = group.fieldsetInfo.label;
+    fieldSetEl.appendChild(legendEl);
+    parentEl.appendChild(fieldSetEl);    
+
+    group.fields.forEach(field => {
+      createField(field, fieldSetEl);
+    });
+  });
+}
+
 function createField(field, parentEl) {
+  const fieldWrapper = document.createElement('div');
   const label = document.createElement("label");
   const labelText = document.createElement("span");
-
+  const helperTextEl = document.createElement('p');
   label.classList.add("field");
   label.classList.add(`field--${field.inputType}`);
-
   labelText.innerText = field.label;
 
   if (field.inputType === "color") {
     const colorField = createColorField(field);
     label.appendChild(colorField);
-  } else {
+  } else {    
     const inputElement = document.createElement("input");
     inputElement.setAttribute("type", field.inputType);
     inputElement.setAttribute("name", field.configName);
     inputElement.setAttribute("value", field.initValue || "");
+    
+    if(field.helperText){
+      const helperTextId = field.configName+'HelperText';
+      inputElement.setAttribute("aria-describedby", helperTextId);
+      helperTextEl.id = helperTextId;
+      helperTextEl.innerHTML = field.helperText
+    }
 
     if (field.inputType === "checkbox") {
       if (field.initValue === true) {
@@ -261,22 +300,42 @@ function createField(field, parentEl) {
       label.appendChild(inputElement);
       label.appendChild(labelText);
     } else {
+      if(field.max){
+        inputElement.setAttribute("max", field.max);
+      }
+      if(field.min){
+        inputElement.setAttribute("min", field.min);
+      }
+      if(field.step){
+        inputElement.setAttribute("step", field.step);
+      }
       label.appendChild(labelText);
       label.appendChild(inputElement);
     }
 
     inputElement.addEventListener("change", () => {
       const fieldValue = field.inputType == "checkbox" ? inputElement.checked : inputElement.value;
-      updateGridAndConfigBasedOnValue(fieldValue, field.initValue, field.configName);
+      updateGridAndConfigBasedOnValue(fieldValue, field.initValue, field.configName, field.inputType, field.arraySeparator);
     });
   }
 
-  parentEl.appendChild(label);
+  fieldWrapper.appendChild(label);
+  if(field.helperText){
+    fieldWrapper.appendChild(helperTextEl);
+  }
+  parentEl.appendChild(fieldWrapper);
 }
 
-function updateGridAndConfigBasedOnValue(value, initValue, configName) {
-  if (value !== initValue) {
-    currentGridConfig[configName] = value;
+function updateGridAndConfigBasedOnValue(value, initValue, configName, inputType, separator) {
+  let val = value;
+  if(inputType === 'number'){
+    val = parseFloat(value);
+  }
+  if(separator && inputType === 'numberArray'){
+    val = value.split(separator).map(Number);
+  }
+  if (val !== initValue) {
+    currentGridConfig[configName] = val;
   } else {
     delete currentGridConfig[configName];
   }
