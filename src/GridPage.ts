@@ -1,5 +1,3 @@
-/** @format */
-
 export interface GridPageBasicOtions {
   documentWidth?: number;
   documentHeight?: number;

@@ -1,12 +1,4 @@
-/** @format */
-
-import {
-  GridPage,
-  GridPageBasicOtions,
-  GridPageTechnicalOptions,
-  GridPageExtendedOptions,
-  RequiredFields,
-} from "./GridPage";
+import {GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields} from "./GridPage";
 
 export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOtions {
   lineColor?: string;
