@@ -1,27 +1,38 @@
-import { GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields } from "./GridPage";
+/** @format */
+
+import {
+  GridPage,
+  GridPageBasicOtions,
+  GridPageTechnicalOptions,
+  GridPageExtendedOptions,
+  RequiredFields,
+} from "./GridPage";
 
 export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOtions {
   lineColor?: string;
-  xHeight?:number;
-  slantAngle?:number;
+  xHeight?: number;
+  slantAngle?: number;
 }
 
 export interface CalligraphyAreaPageExtendedOptions extends GridPageExtendedOptions {
-  gridStrokeWidth?:number;
-  areaBlockBuffer?:number;
-  slantAngleGap?:number;
-  addDividerLines?:boolean;
+  gridStrokeWidth?: number;
+  areaBlockBuffer?: number;
+  slantAngleGap?: number;
+  slantLineMinLength?: number;
+  addDividerLines?: boolean;
 }
 
 export interface CalligraphyAreaPageTechOptions extends GridPageTechnicalOptions {}
 
-export type CalligraphyAreaPageConfig = CalligraphyAreaPageBasicOptions & CalligraphyAreaPageExtendedOptions & CalligraphyAreaPageTechOptions;
+export type CalligraphyAreaPageConfig = CalligraphyAreaPageBasicOptions &
+  CalligraphyAreaPageExtendedOptions &
+  CalligraphyAreaPageTechOptions;
 
 export class CalligraphyAreaPage extends GridPage {
   #defaults: RequiredFields<CalligraphyAreaPageConfig>;
   #config: RequiredFields<CalligraphyAreaPageConfig>;
-  #prettyName:string;
-  #fileName:string;
+  #prettyName: string;
+  #fileName: string;
 
   constructor(options: Partial<CalligraphyAreaPageConfig> = {}) {
     super(options);
@@ -30,30 +41,30 @@ export class CalligraphyAreaPage extends GridPage {
       ...parentDefaults,
       lineColor: parentDefaults.color,
       gridStrokeWidth: parentDefaults.stroke,
-      xHeight:7,
-      slantAngle:45,
-      slantAngleGap:10,    
+      xHeight: 7,
+      slantAngle: 55, // must be below 90
+      slantAngleGap: 10,
       areaBlockBuffer: 7,
-      addDividerLines:true,
-    }
+      addDividerLines: true,
+      slantLineMinLength: 10,
+    };
     this.#config = { ...this.#defaults, ...options };
-    if ('color' in options) {
+    if ("color" in options) {
       this.#config.lineColor = options.color;
     }
-    if('stroke' in options){
+    if ("stroke" in options) {
       this.#config.gridStrokeWidth = options.stroke;
     }
     this.#prettyName = this.generateName("pretty");
-    this.#fileName = this.generateName('file');
+    this.#fileName = this.generateName("file");
 
     super.fileName = this.#fileName;
     super.prettyName = this.#prettyName;
     super.init();
     this.drawCalligraphyArea();
-    this.removeLinesOutsideMask(this.maskId);
   }
 
-  private drawCalligraphyArea():void {
+  private drawCalligraphyArea(): void {
     const xHeight = this.#config.xHeight;
     const horizontalReps = this.gridHeight / xHeight;
     const horizontalRemainder = this.gridHeight % xHeight;
@@ -63,95 +74,176 @@ export class CalligraphyAreaPage extends GridPage {
     const stroke = this.#config.gridStrokeWidth;
     const dotSize = this.#config.gridStrokeWidth * 1.3;
     const dotGap = this.#config.gridStrokeWidth * 2;
+    const rectCenterX = this.marginLeft + this.gridWidth / 2;
+    const rectCenterY = this.marginTop + this.gridHeight / 2;
+    const rectDiagonal = Math.sqrt(Math.pow(this.gridWidth, 2) + Math.pow(this.gridHeight, 2));
+    const lineAngle = 180 - this.#config.slantAngle;
+    const slantSpacing = this.#config.slantAngleGap;
+    // we're using the diagonal length as a basis to ensure we cover the entire area with our function
+    const slantReps = rectDiagonal / slantSpacing;
 
-    const gridParent = this.createGroup("grid","calli-grid",this.maskId ? this.maskId : undefined);
+    const gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
 
     const horizontalLines = this.createGroup("horizontal-lines");
-    
+
     let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
       this.drawSolidLine(horizontalLines, "horizontal", yLineStart, lineStart, lineEnd, color, stroke);
-      if(this.#config.addDividerLines){
+      if (this.#config.addDividerLines) {
         const gridPos = yLineStart + xHeight / 2;
-        this.drawDottedLine(horizontalLines, 'horizontal',  gridPos, lineStart, lineEnd, dotSize, dotGap, color);
+        this.drawDottedLine(horizontalLines, "horizontal", gridPos, lineStart, lineEnd, dotSize, dotGap, color);
       }
       yLineStart += xHeight;
     }
-    const slantLines = this.createGroup("slant-lines");
-    const slantGap = this.#config.slantAngleGap;
-    const slantReps = this.gridWidth / slantGap;
-
-    // were currently just drawing the lines left and right in the width of the width and then cleanup later.
-    let posXRight = this.marginLeft;
-    for(let i = 0; i <= slantReps; i++){
-      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXRight, this.height - this.marginBottom, color, stroke)
-      posXRight += slantGap;
-    }
-    
-    let posXLeft = this.marginLeft;
-    for(let i = 0; i <= slantReps; i++){
-      this.drawSlantLine(slantLines, this.gridHeight, this.#config.slantAngle, posXLeft, this.height - this.marginBottom, color, stroke);
-      posXLeft -= slantGap;
-    }
-
     gridParent.appendChild(horizontalLines);
+
+    const slantLines = this.createGroup("slant-lines");
+    const angleRad = (lineAngle * Math.PI) / 180;
+    const centerLineLength = rectDiagonal / 2;
+    let lineStartX = rectCenterX - centerLineLength * Math.cos(angleRad);
+    let lineStartY = rectCenterY - centerLineLength * Math.sin(angleRad);
+    let lineEndX = rectCenterX + centerLineLength * Math.cos(angleRad);
+    let lineEndY = rectCenterY + centerLineLength * Math.sin(angleRad);
+
+    this.drawLineWithinArea(
+      slantLines,
+      lineStartX,
+      lineStartY,
+      lineEndX,
+      lineEndY,
+      this.#config.lineColor,
+      this.#config.gridStrokeWidth
+    );
+
+    let distance = slantSpacing;
+    for (let i = 0; i < slantReps; i++) {
+      // draw lines to the left and right of center line
+      this.createParallelLine(
+        gridParent,
+        lineStartX,
+        lineStartY,
+        lineEndX,
+        lineEndY,
+        distance,
+        this.#config.lineColor,
+        this.#config.gridStrokeWidth,
+        this.#config.slantLineMinLength
+      );
+      this.createParallelLine(
+        gridParent,
+        lineStartX,
+        lineStartY,
+        lineEndX,
+        lineEndY,
+        distance * -1,
+        this.#config.lineColor,
+        this.#config.gridStrokeWidth,
+        this.#config.slantLineMinLength
+      );
+      distance += slantSpacing;
+    }
     gridParent.appendChild(slantLines);
+
     this.svgElement.appendChild(gridParent);
   }
 
-  removeLinesOutsideMask(maskId: string): void {
-    const svg = document.querySelector('svg'); // Replace this with your actual SVG element selection method
-    const maskRect = svg.querySelector(`#${maskId} > rect`) as SVGRectElement; // Assuming the mask is a rect element
-  
-    // Get mask dimensions
-    const maskX = parseFloat(maskRect.getAttribute('x') || '0');
-    const maskY = parseFloat(maskRect.getAttribute('y') || '0');
-    const maskWidth = parseFloat(maskRect.getAttribute('width') || '0');
-    const maskHeight = parseFloat(maskRect.getAttribute('height') || '0');
-  
-    // Find lines to check against the mask
-    const linesToCheck = Array.from(svg.querySelectorAll('line')); // Selecting only line elements
-  
-    // Remove lines that are entirely outside the mask
-    linesToCheck.forEach((line: SVGLineElement) => {
-      const x1 = parseFloat(line.getAttribute('x1') || '0');
-      const y1 = parseFloat(line.getAttribute('y1') || '0');
-      const x2 = parseFloat(line.getAttribute('x2') || '0');
-      const y2 = parseFloat(line.getAttribute('y2') || '0');
-  
-      // Check if both line endpoints are entirely outside the mask boundaries
-      const bothPointsOutside = (
-        (x1 < maskX && x2 < maskX) ||
-        (x1 > maskX + maskWidth && x2 > maskX + maskWidth) ||
-        (y1 < maskY && y2 < maskY) ||
-        (y1 > maskY + maskHeight && y2 > maskY + maskHeight)
-      );
-  
-      if (bothPointsOutside) {
-        line.remove(); // Remove the line if both points are outside the mask boundaries
-      }
-    });
-  }
-  
-  simulateSlantLine(height:number, angle:number, startPosX:number, startPosY:number){
-    const xEnd = startPosX + height / Math.tan((angle * Math.PI) / 180);
-    const yEnd = startPosY - height;
+  generateParallelCoordinates(x1: number, y1: number, x2: number, y2: number, distance: number): { x1: number; y1: number; x2: number; y2: number } {
+    // Calculate offsets for the new line based on the distance provided
+    const xOffset = distance;
 
-    return {      
-      x1: this.formatCoordinate(startPosX),
-      y1: this.formatCoordinate(startPosY),
-      x2: this.formatCoordinate(xEnd),
-      y2: this.formatCoordinate(yEnd),
+    // Calculate new coordinates for the parallel line along the X-axis
+    const newX1 = x1 + xOffset;
+    const newY1 = y1;
+    const newX2 = x2 + xOffset;
+    const newY2 = y2;
+
+    return { x1: newX1, y1: newY1, x2: newX2, y2: newY2 };
+  }
+
+  drawLine(parentEl: SVGElement, x1: number, y1: number, x2: number, y2: number, color: string, stroke: number) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1.toString());
+    line.setAttribute("y1", y1.toString());
+    line.setAttribute("x2", x2.toString());
+    line.setAttribute("y2", y2.toString());
+    line.setAttribute("stroke", color); // Change the line color as needed
+    line.setAttribute("stroke-width", stroke.toString());
+    parentEl.appendChild(line);
+  }
+
+  drawLineWithinArea(parentEl: SVGElement, x1: number, y1: number, x2: number, y2: number, color: string, stroke: number, maxLength?: number) {
+    const intersectionPoints = this.calculateIntersectionPoints(x1, y1, x2, y2); // Corrected parameter order
+
+    if (intersectionPoints.length > 0) {
+      // Trim the line to start and end at the intersection points
+      let trimmedX1 = x1;
+      let trimmedY1 = y1;
+      let trimmedX2 = x2;
+      let trimmedY2 = y2;
+
+      if (intersectionPoints.length >= 2) {
+        trimmedX1 = intersectionPoints[0].x;
+        trimmedY1 = intersectionPoints[0].y;
+        trimmedX2 = intersectionPoints[1].x;
+        trimmedY2 = intersectionPoints[1].y;
+      }
+
+      const trimmedLineLength = Math.sqrt((trimmedX2 - trimmedX1) ** 2 + (trimmedY2 - trimmedY1) ** 2);
+
+      let lineColor = color;
+      if (maxLength) {
+        if (trimmedLineLength > maxLength) {
+          this.drawLine(parentEl, trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
+        }
+      } else {
+        this.drawLine(parentEl, trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
+      }
     }
   }
 
-  private generateName(type: 'pretty' | 'file'): string {
-    const angleLabel = type === 'pretty' ? '°' : 'deg';
-    const separator = type === 'pretty' ? ' ' : '_';
-  
+  createParallelLine(parentEl, x1, y1, x2, y2, distance, color, stroke, maxLength) {
+    const { x1: newX1, y1: newY1, x2: newX2, y2: newY2 } = this.generateParallelCoordinates(x1, y1, x2, y2, distance);
+    this.drawLineWithinArea(parentEl, newX1, newY1, newX2, newY2, color, stroke, maxLength);
+  }
+
+  calculateIntersectionPoints(lineX1: number, lineY1: number, lineX2: number, lineY2: number): number[] {
+    const rectX = this.marginLeft;
+    const rectY = this.marginTop;
+    const rectWidth = this.gridWidth;
+    const rectHeight = this.gridHeight;
+
+    const slope = (lineY2 - lineY1) / (lineX2 - lineX1);
+    const yIntercept = lineY1 - slope * lineX1;
+    const isInsideRectangle = (x, y) => x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight;
+    const topIntersectionX = (rectY - yIntercept) / slope;
+    const bottomIntersectionX = (rectY + rectHeight - yIntercept) / slope;
+    const leftIntersectionY = slope * rectX + yIntercept;
+    const rightIntersectionY = slope * (rectX + rectWidth) + yIntercept;
+
+    const intersectionPoints = [];
+
+    if (isInsideRectangle(topIntersectionX, rectY)) {
+      intersectionPoints.push({ x: topIntersectionX, y: rectY });
+    }
+    if (isInsideRectangle(bottomIntersectionX, rectY + rectHeight)) {
+      intersectionPoints.push({ x: bottomIntersectionX, y: rectY + rectHeight });
+    }
+    if (isInsideRectangle(rectX, leftIntersectionY)) {
+      intersectionPoints.push({ x: rectX, y: leftIntersectionY });
+    }
+    if (isInsideRectangle(rectX + rectWidth, rightIntersectionY)) {
+      intersectionPoints.push({ x: rectX + rectWidth, y: rightIntersectionY });
+    }
+    return intersectionPoints;
+  }
+
+  private generateName(type: "pretty" | "file"): string {
+    const angleLabel = type === "pretty" ? "°" : "deg";
+    const separator = type === "pretty" ? " " : "_";
+
     const angle = `${this.#config.slantAngle}${angleLabel}`;
     const xHeight = `${this.#config.xHeight}mm`;
-  
+
     return `${angle}${separator}${xHeight}`;
   }
 }

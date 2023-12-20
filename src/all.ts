@@ -8,7 +8,7 @@ import {CalligraphyLinePage} from './CalligraphyLinePage';
 import {CalligraphyAreaPage} from './CalligraphyAreaPage';
 console.log('test');
 
-// new CalligraphyLinePage();
-new CalligraphyAreaPage({documentHeight: 100, documentWidth: 100, slantAngle: 55});
-// new DotGridPage();
-// new GraphGridPage();
+new CalligraphyLinePage({container: document.querySelector('[data-calli-line]')});
+new CalligraphyAreaPage({container: document.querySelector('[data-calli-area]')});
+new DotGridPage({container: document.querySelector('[data-dot]')});
+new GraphGridPage({container: document.querySelector('[data-graph]')});

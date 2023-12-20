@@ -395,3 +395,15 @@ label {
 .hidden {
   display: none;
 }
+
+.collection {
+  &__items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    grid-gap: 1rem;
+  }
+
+  &__preview {
+    background: white;
+  }
+}

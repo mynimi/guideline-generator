@@ -6,7 +6,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        nested: resolve(__dirname, 'graph/index.html'),
+        all: resolve(__dirname, 'all/index.html'),
       },
     },
   },
