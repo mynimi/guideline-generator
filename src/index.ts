@@ -176,7 +176,6 @@ function renderFields(configPersonality: ConfigPersonality) {
   const currentConfig = getConfig(configPersonality, gridType);
 
   if(currentConfig){
-    console.log('render fields');
     createFieldSets(currentConfig, fieldContainer);
   }
 }
