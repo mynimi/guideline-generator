@@ -288,6 +288,8 @@ export class GridPage {
   private createDocument(): SVGElement {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const viewBox = `0 0 ${this.width} ${this.height}`;
+    // svg.setAttribute("width", this.width.toString());
+    // svg.setAttribute("height", this.height.toString());
     svg.setAttribute("viewBox", viewBox);
     svg.setAttribute('id', this.generateUniqueId('grid-page'));
     return svg;
