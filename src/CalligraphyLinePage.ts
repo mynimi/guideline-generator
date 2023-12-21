@@ -146,9 +146,8 @@ export class CalligraphyLinePage extends GridPage {
       for(let i = 1; i < ratio; i++){
         const gap = (dividerDrawingDirection == 'down') ? dividerGap : dividerGap*-1;
         const gridPos = gridPosLine + i * gap;
-        const dotSize = this.#config.gridStrokeWidth * 1.3;
-        const dotGap = this.#config.gridStrokeWidth * 2;
-        this.drawDottedLine(group, 'horizontal',  gridPos, lineStart, lineEnd, dotSize, dotGap, color);
+        const dotRadius = this.#config.gridStrokeWidth;
+        this.drawDashedLine(group, 'horizontal',  gridPos, lineStart, lineEnd, dotRadius, color);
       }
     }
     parentEl.appendChild(group);

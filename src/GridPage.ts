@@ -200,16 +200,31 @@ export class GridPage {
     parentEl.appendChild(line);
   }
 
-  drawDottedLine(
-    parentEl: SVGElement,
-    orientation: "horizontal" | "vertical",
-    gridPos: number,
-    lineStart: number,
-    lineEnd: number,
-    dotRadius: number,
-    gapBetweenDots: number,
-    dotColor: string
-  ): void {
+  drawDashedLine(parentEl:SVGElement, orientation: "horizontal" | "vertical", gridPos:number, lineStart:number, lineEnd:number, dotRadius:number, dotColor:string) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  
+    if (orientation === "horizontal") {
+      line.setAttribute("x1", this.formatCoordinate(lineStart));
+      line.setAttribute("y1", this.formatCoordinate(gridPos));
+      line.setAttribute("x2", this.formatCoordinate(lineEnd));
+      line.setAttribute("y2", this.formatCoordinate(gridPos));
+    } else {
+      line.setAttribute("x1", this.formatCoordinate(gridPos));
+      line.setAttribute("y1", this.formatCoordinate(lineStart));
+      line.setAttribute("x2", this.formatCoordinate(gridPos));
+      line.setAttribute("y2", this.formatCoordinate(lineEnd));
+    }
+  
+    line.setAttribute("stroke", dotColor);
+    line.setAttribute("stroke-width", dotRadius * 2); // Adjust line width as needed
+    line.setAttribute("stroke-linecap", "round");
+    // line.setAttribute("stroke-dasharray", `${dotRadius * 2},${gapBetweenDots * 2}`);
+    line.setAttribute("stroke-dasharray", `0,${dotRadius*4}`);
+  
+    parentEl.appendChild(line);
+  }
+
+  drawDottedLine(parentEl: SVGElement, orientation: "horizontal" | "vertical", gridPos: number, lineStart: number, lineEnd: number, dotRadius: number, gapBetweenDots: number, dotColor: string): void {
     const lineGroup = this.createGroup("dotted-line");
     const dotSpacing = dotRadius * 2 + gapBetweenDots;
     let currentPos = lineStart;

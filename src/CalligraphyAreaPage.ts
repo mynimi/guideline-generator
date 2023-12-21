@@ -67,8 +67,7 @@ export class CalligraphyAreaPage extends GridPage {
     const lineEnd = this.width - this.marginLeft;
     const color = this.#config.lineColor;
     const stroke = this.#config.gridStrokeWidth;
-    const dotSize = this.#config.gridStrokeWidth * 1.3;
-    const dotGap = this.#config.gridStrokeWidth * 2;
+    const dotSize = this.#config.gridStrokeWidth;
     const rectCenterX = this.marginLeft + this.gridWidth / 2;
     const rectCenterY = this.marginTop + this.gridHeight / 2;
     const rectDiagonal = Math.sqrt(Math.pow(this.gridWidth, 2) + Math.pow(this.gridHeight, 2));
@@ -86,7 +85,7 @@ export class CalligraphyAreaPage extends GridPage {
       this.drawSolidLine(horizontalLines, "horizontal", yLineStart, lineStart, lineEnd, color, stroke);
       if (this.#config.addDividerLines) {
         const gridPos = yLineStart + xHeight / 2;
-        this.drawDottedLine(horizontalLines, "horizontal", gridPos, lineStart, lineEnd, dotSize, dotGap, color);
+        this.drawDashedLine(horizontalLines, "horizontal", gridPos, lineStart, lineEnd, dotSize, color);
       }
       yLineStart += xHeight;
     }
