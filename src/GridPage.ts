@@ -1,3 +1,5 @@
+/** @format */
+
 export interface GridPageBasicOtions {
   documentWidth?: number;
   documentHeight?: number;
@@ -200,9 +202,19 @@ export class GridPage {
     parentEl.appendChild(line);
   }
 
-  drawDashedLine(parentEl:SVGElement, orientation: "horizontal" | "vertical", gridPos:number, lineStart:number, lineEnd:number, dotRadius:number, dotColor:string) {
+  drawDashedLine(
+    parentEl: SVGElement,
+    orientation: "horizontal" | "vertical",
+    gridPos: number,
+    lineStart: number,
+    lineEnd: number,
+    dotRadius: number,
+    dotColor: string
+  ) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  
+    const dotSize = dotRadius * 2;
+    const dotGap = dotRadius * 4;
+
     if (orientation === "horizontal") {
       line.setAttribute("x1", this.formatCoordinate(lineStart));
       line.setAttribute("y1", this.formatCoordinate(gridPos));
@@ -214,17 +226,25 @@ export class GridPage {
       line.setAttribute("x2", this.formatCoordinate(gridPos));
       line.setAttribute("y2", this.formatCoordinate(lineEnd));
     }
-  
+
     line.setAttribute("stroke", dotColor);
-    line.setAttribute("stroke-width", dotRadius * 2); // Adjust line width as needed
+    line.setAttribute("stroke-width", dotSize.toString());
     line.setAttribute("stroke-linecap", "round");
-    // line.setAttribute("stroke-dasharray", `${dotRadius * 2},${gapBetweenDots * 2}`);
-    line.setAttribute("stroke-dasharray", `0,${dotRadius*4}`);
-  
+    line.setAttribute("stroke-dasharray", `0,${dotGap}`);
+
     parentEl.appendChild(line);
   }
 
-  drawDottedLine(parentEl: SVGElement, orientation: "horizontal" | "vertical", gridPos: number, lineStart: number, lineEnd: number, dotRadius: number, gapBetweenDots: number, dotColor: string): void {
+  drawDottedLine(
+    parentEl: SVGElement,
+    orientation: "horizontal" | "vertical",
+    gridPos: number,
+    lineStart: number,
+    lineEnd: number,
+    dotRadius: number,
+    gapBetweenDots: number,
+    dotColor: string
+  ): void {
     const lineGroup = this.createGroup("dotted-line");
     const dotSpacing = dotRadius * 2 + gapBetweenDots;
     let currentPos = lineStart;
@@ -253,8 +273,16 @@ export class GridPage {
 
     parentEl.appendChild(lineGroup);
   }
-  
-  drawSlantLine(parentEl: SVGElement, lineHeight:number, angle, xStart:number, yStart:number, color:string, stroke:number){
+
+  drawSlantLine(
+    parentEl: SVGElement,
+    lineHeight: number,
+    angle,
+    xStart: number,
+    yStart: number,
+    color: string,
+    stroke: number
+  ) {
     const xEnd = xStart + lineHeight / Math.tan((angle * Math.PI) / 180);
     const yEnd = yStart - lineHeight;
 
@@ -269,11 +297,11 @@ export class GridPage {
     parentEl.appendChild(line);
   }
 
-  formatCoordinate(n: number): string { 
+  formatCoordinate(n: number): string {
     return parseFloat(n.toFixed(this.#config.coordinateDecimalPlaceMax)).toString();
   }
 
-  private generateUniqueId(baseId:string): string {
+  private generateUniqueId(baseId: string): string {
     const uniqueIdSuffix = Math.random().toString(36).substr(2, 5); // Generating a random unique string
     return `${baseId}-${uniqueIdSuffix}`;
   }
@@ -306,7 +334,7 @@ export class GridPage {
     // svg.setAttribute("width", this.width.toString());
     // svg.setAttribute("height", this.height.toString());
     svg.setAttribute("viewBox", viewBox);
-    svg.setAttribute('id', this.generateUniqueId('grid-page'));
+    svg.setAttribute("id", this.generateUniqueId("grid-page"));
     return svg;
   }
 
