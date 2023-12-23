@@ -43,7 +43,7 @@ export class GridPage {
   readonly #textBuffer: number = 2;
   readonly #fontColor: string = "#808080";
   readonly #copyRightText: string = "© grid code.halfapx.com/guideline-generator/";
-  readonly #addCopyright:boolean = false;
+  readonly #addCopyright:boolean = true;
 
   get maskId(): string {
     return this.#maskId;
