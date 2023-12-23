@@ -43,6 +43,7 @@ export class GridPage {
   readonly #textBuffer: number = 2;
   readonly #fontColor: string = "#808080";
   readonly #copyRightText: string = "© grid code.halfapx.com/guideline-generator/";
+  readonly #addCopyright:boolean = false;
 
   get maskId(): string {
     return this.#maskId;
@@ -73,7 +74,7 @@ export class GridPage {
   }
 
   get marginBottom(): number {
-    return this.#config.documentMarginBottom! + this.textHeight * this.#copyrightSizeFactor;
+    return this.#addCopyright? this.#config.documentMarginBottom! + this.textHeight * this.#copyrightSizeFactor : this.#config.documentMarginBottom;
   }
 
   get marginLeft(): number {
@@ -307,11 +308,13 @@ export class GridPage {
   }
 
   private addTitleAndCopyright(): void {
-    const copyrightFontSize = this.#config.textFontSize! * this.#copyrightSizeFactor;
-    const copyrightTopPos = this.height - this.#config.documentMarginBottom!;
-    const copyrightLeftPos = this.#config.documentMarginLeft!;
-
-    this.addTextString(this.#svg, this.#copyRightText, copyrightFontSize, "start", copyrightTopPos, copyrightLeftPos);
+    if(this.#addCopyright){
+      const copyrightFontSize = this.#config.textFontSize! * this.#copyrightSizeFactor;
+      const copyrightTopPos = this.height - this.#config.documentMarginBottom!;
+      const copyrightLeftPos = this.#config.documentMarginLeft!;
+  
+      this.addTextString(this.#svg, this.#copyRightText, copyrightFontSize, "start", copyrightTopPos, copyrightLeftPos);
+    }
 
     if (this.#config.addTitle) {
       const titleFontSize = this.#config.textFontSize!;
