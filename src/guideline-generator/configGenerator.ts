@@ -1,4 +1,5 @@
-import { type FieldConfig, type FieldSet, type fieldSetId } from "./FieldConfig";
+import type {Input} from "postcss";
+import { type FieldConfig, type FieldSet, type fieldSetId, type InputTypes } from "./FieldConfig";
 
 export function generateFieldsets(): FieldSet[] {
   return [
@@ -18,10 +19,10 @@ export function generateFieldset(id: fieldSetId, label: string): FieldSet {
 
 export function generateFieldConfig(
   fieldset: fieldSetId,
-  label,
-  initValue,
-  inputType,
-  configName,
+  label: string,
+  initValue: string|number|boolean,
+  inputType: InputTypes,
+  configName: string,
   additionalProps = {}
 ): FieldConfig {
   return {

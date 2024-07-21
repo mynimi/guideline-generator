@@ -1,4 +1,4 @@
-export function saveSVGAsFile(gridInstance: {fileName: any; svgElement: SVGSVGElement;}) {
+export function saveSVGAsFile(gridInstance:any) {
   const fileName = gridInstance.fileName;
   const svgContent = new XMLSerializer().serializeToString(gridInstance.svgElement as SVGSVGElement);
   const blob = new Blob([svgContent], { type: 'image/svg+xml' });

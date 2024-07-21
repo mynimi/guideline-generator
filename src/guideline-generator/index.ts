@@ -2,9 +2,8 @@ import { DotGridPage } from "./DotGridPage";
 import { CalligraphyLinePage } from "./CalligraphyLinePage";
 import { CalligraphyAreaPage } from "./CalligraphyAreaPage";
 import { GraphGridPage } from "./GraphGridPage";
-import { GridPageConfig } from "./GridPage";
-import {setupGridPreviews} from "./gridPreviewSetup";
-import {FieldConfig} from "./FieldConfig";
+import { type GridPageConfig } from "./GridPage";
+import type {FieldConfig} from "./FieldConfig";
 import {allFieldSets,minimalFormConfigLine,minimalFormConfigArea,minimalFormConfigDot,minimalFormConfigGraph,balancedFormConfigLine,balancedFormConfigArea,balancedFormConfigDot,balancedFormConfigGraph,maximalFormConfigLine,maximalFormConfigArea,maximalFormConfigDot,maximalFormConfigGraph} from "./formConfig";
 import {saveSVGAsFile} from './saveSVG';
 import {generatePDF} from "./savePDF";
@@ -48,12 +47,11 @@ const gridConfig: GridPageConfig = {
 };
 
 // these will be changing
-let currentGridConfig = {};
+let currentGridConfig: { [key: string]: any } = {};
 let gridType!: GridType;
-let gridInstance;
+let gridInstance: CalligraphyLinePage|CalligraphyAreaPage|DotGridPage|GraphGridPage|undefined;
 let viewType!: ConfigPersonality;
 
-setupGridPreviews();
 
 viewSwitch.forEach((input) => {
   handleViewChange(input);
@@ -69,8 +67,8 @@ gridPicker.forEach((input) => {
   });
 });
 
-downloadButton.addEventListener('click', function() {
-  saveSVGAsFile(gridInstance);
+downloadButton?.addEventListener('click', function() {
+  return saveSVGAsFile(gridInstance);
 });
 
 dlBtn?.addEventListener('click', () => {
@@ -78,7 +76,7 @@ dlBtn?.addEventListener('click', () => {
 });
 
 
-function initGrid(type) {
+function initGrid(type: string) {
   let newGrid;
   const newGridConfig = {
     ...gridConfig,
@@ -111,10 +109,12 @@ function initGrid(type) {
 
 function killGrid() {
   gridInstance = undefined;
-  gridContainer.innerHTML = "";
+  if (gridContainer) {
+    gridContainer.innerHTML = "";
+  }
 }
 
-function handleGridChange(input) {
+function handleGridChange(input: any) {
   if (input.checked) {
     gridType = input.value;
     initGrid(gridType);
@@ -122,7 +122,7 @@ function handleGridChange(input) {
   }
 }
 
-function handleViewChange(input) {
+function handleViewChange(input: any) {
   if (input.checked) {
     viewType = input.value;
     renderFields(viewType);
@@ -176,7 +176,7 @@ function renderFields(configPersonality: ConfigPersonality) {
   }
 }
 
-function createColorField(field) {
+function createColorField(field: {initValue: any; label: string; configName: string;}) {
   const colorFieldWrapper = document.createElement("fieldset");
   const legend = document.createElement("legend");
   const initValue = field.initValue;
@@ -232,9 +232,9 @@ function createColorField(field) {
   return colorFieldWrapper;
 }
 
-function groupFields(currentConfig){
-  const groupedFields = {};
-  currentConfig.forEach(item => {
+function groupFields(currentConfig: FieldConfig[]){
+  const groupedFields: { [key: string]: { fieldsetInfo: any, fields: any[] } } = {};
+  currentConfig.forEach((item) => {
     const { fieldset, ...rest } = item;
     if (!groupedFields[fieldset]) {
       groupedFields[fieldset] = {
@@ -247,7 +247,7 @@ function groupFields(currentConfig){
   return groupedFields;
 }
 
-function createFieldSets(currentConfig, parentEl){
+function createFieldSets(currentConfig: FieldConfig[], parentEl: Element){
   const groupedFields = groupFields(currentConfig);
   Object.keys(groupedFields).forEach(fieldsetId => {
     const group = groupedFields[fieldsetId];
@@ -257,13 +257,13 @@ function createFieldSets(currentConfig, parentEl){
     fieldSetEl.appendChild(legendEl);
     parentEl.appendChild(fieldSetEl);    
 
-    group.fields.forEach(field => {
+    group.fields.forEach((field: any) => {
       createField(field, fieldSetEl);
     });
   });
 }
 
-function createField(field, parentEl) {
+function createField(field: {inputType?: any; label: any; configName: any; initValue: any; helperText?: any; max?: any; min?: any; step?: any; arraySeparator?: any;}, parentEl: HTMLFieldSetElement) {
   const fieldWrapper = document.createElement('div');
   const label = document.createElement("label");
   const labelText = document.createElement("span");
@@ -321,12 +321,12 @@ function createField(field, parentEl) {
   parentEl.appendChild(fieldWrapper);
 }
 
-function updateGridAndConfigBasedOnValue(value, initValue, configName, inputType, separator) {
-  let val = value;
-  if(inputType === 'number'){
+function updateGridAndConfigBasedOnValue(value: string|boolean, initValue: any, configName: string, inputType: string, separator: undefined) {
+  let val: string | boolean | number[] | number = value;
+  if (inputType === 'number' && typeof value === 'string') {
     val = parseFloat(value);
   }
-  if(separator && inputType === 'numberArray'){
+  if(separator && inputType === 'numberArray' && typeof value === 'string'){
     val = value.split(separator).map(Number);
   }
   if (val !== initValue) {

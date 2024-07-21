@@ -19,7 +19,7 @@ export interface GridPageExtendedOptions {
 
 export interface GridPageTechnicalOptions {
   coordinateDecimalPlaceMax?: number;
-  container?: Element;
+  container: Element | null;
   textFontSize?: number;
   textLineHeight?: number;
 }
@@ -31,8 +31,8 @@ export type GridPageConfig = GridPageBasicOptions & GridPageExtendedOptions & Gr
 export class GridPage {
   #defaults: RequiredFields<GridPageConfig>;
   #config: RequiredFields<GridPageConfig>;
-  #svg: SVGElement;
-  #maskId: string;
+  #svg!: SVGElement;
+  #maskId?: string;
   #prettyName: string = this.generateGridName("pretty");
   #fileName: string = this.generateGridName("file");
   readonly #defaultStrokeSize: number = 0.2;
@@ -43,7 +43,7 @@ export class GridPage {
   readonly #copyRightText: string = "© grid code.halfapx.com/guideline-generator/";
   readonly #addCopyright: boolean = true;
 
-  get maskId(): string {
+  get maskId(): string | undefined {
     return this.#maskId;
   }
 
@@ -51,42 +51,42 @@ export class GridPage {
     return this.#defaults;
   }
 
-  get svgElement(): SVGElement {
+  get svgElement(): SVGElement | undefined {
     return this.#svg;
   }
 
   get width(): number {
-    return this.#config.documentWidth!;
+    return this.#config.documentWidth;
   }
 
   get height(): number {
-    return this.#config.documentHeight!;
+    return this.#config.documentHeight;
   }
 
   private get textHeight(): number {
-    return this.#config.textFontSize! * this.#config.textLineHeight! + this.#textBuffer;
+    return this.#config.textFontSize * this.#config.textLineHeight + this.#textBuffer;
   }
 
   get marginTop(): number {
-    return this.#config.addTitle! ? this.#config.documentMarginTop! + this.textHeight : this.#config.documentMarginTop!;
+    return this.#config.addTitle ? this.#config.documentMarginTop + this.textHeight : this.#config.documentMarginTop;
   }
 
   get marginBottom(): number {
     return this.#addCopyright
-      ? this.#config.documentMarginBottom! + this.textHeight * this.#copyrightSizeFactor
+      ? this.#config.documentMarginBottom + this.textHeight * this.#copyrightSizeFactor
       : this.#config.documentMarginBottom;
   }
 
   get marginLeft(): number {
-    return this.#config.documentMarginLeft!;
+    return this.#config.documentMarginLeft;
   }
 
   get marginRight(): number {
-    return this.#config.documentMarginRight!;
+    return this.#config.documentMarginRight;
   }
 
   get gridWidth(): number {
-    return this.width - this.#config.documentMarginLeft! - this.#config.documentMarginRight!;
+    return this.width - this.#config.documentMarginLeft - this.#config.documentMarginRight;
   }
 
   get gridHeight(): number {
@@ -123,19 +123,15 @@ export class GridPage {
       areaBorderRadius: 5,
       areaStrokeWidth: this.#defaultStrokeSize,
       areaStrokeColor: this.#defaultStrokeColor,
-      container: document.querySelector("[data-svg-preview]")!,
+      container: document.querySelector("[data-svg-preview]"),
       coordinateDecimalPlaceMax: 2,
       textFontSize: 4,
       textLineHeight: 1.2,
       addTitle: true,
     };
 
-    if ("color" in options) {
-      this.#defaults.areaStrokeColor = options.color;
-    }
-    if ("stroke" in options) {
-      this.#defaults.areaStrokeWidth = options.stroke;
-    }
+    this.#defaults.areaStrokeColor = options.color || this.#defaultStrokeColor;
+    this.#defaults.areaStrokeWidth = options.stroke || this.#defaultStrokeSize;
     this.#config = { ...this.#defaults, ...options };
   }
 
@@ -182,7 +178,7 @@ export class GridPage {
     color: string,
     stroke: number
   ): void {
-    let x1, x2, y1, y2;
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
     if (orientation === "horizontal") {
       x1 = lineStart;
       x2 = lineEnd;
@@ -278,7 +274,7 @@ export class GridPage {
   drawSlantLine(
     parentEl: SVGElement,
     lineHeight: number,
-    angle,
+    angle: number,
     xStart: number,
     yStart: number,
     color: string,

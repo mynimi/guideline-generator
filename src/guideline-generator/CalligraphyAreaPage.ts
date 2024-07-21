@@ -50,10 +50,10 @@ export class CalligraphyAreaPage extends GridPage {
       slantLineMinLength: 10,
     };
     if ("color" in options) {
-      this.#defaults.lineColor = options.color;
+      this.#defaults.lineColor = options.color || this.#defaults.lineColor;
     }
     if ("stroke" in options) {
-      this.#defaults.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke || this.#defaults.gridStrokeWidth;
     }
     this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
@@ -146,7 +146,7 @@ export class CalligraphyAreaPage extends GridPage {
     }
     gridParent.appendChild(slantLines);
 
-    this.svgElement.appendChild(gridParent);
+    this.svgElement!.appendChild(gridParent);
   }
 
   generateParallelCoordinates(
@@ -218,7 +218,7 @@ export class CalligraphyAreaPage extends GridPage {
     }
   }
 
-  createParallelLine(parentEl, x1, y1, x2, y2, distance, color, stroke, maxLength) {
+  createParallelLine(parentEl: SVGElement, x1: number, y1: number, x2: number, y2: number, distance: number, color: string, stroke: number, maxLength: number|undefined) {
     const { x1: newX1, y1: newY1, x2: newX2, y2: newY2 } = this.generateParallelCoordinates(x1, y1, x2, y2, distance);
     this.drawLineWithinArea(parentEl, newX1, newY1, newX2, newY2, color, stroke, maxLength);
   }
@@ -231,7 +231,7 @@ export class CalligraphyAreaPage extends GridPage {
 
     const slope = (lineY2 - lineY1) / (lineX2 - lineX1);
     const yIntercept = lineY1 - slope * lineX1;
-    const isInsideRectangle = (x, y) => x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight;
+    const isInsideRectangle = (x: number, y: number) => x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight;
     const topIntersectionX = (rectY - yIntercept) / slope;
     const bottomIntersectionX = (rectY + rectHeight - yIntercept) / slope;
     const leftIntersectionY = slope * rectX + yIntercept;

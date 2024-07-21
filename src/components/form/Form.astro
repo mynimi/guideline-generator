@@ -13,33 +13,9 @@ const prevs: MiniPreview[] = [
 ];
 
 const name = "grid-type";
-
-const colorOptions = [
-  {
-    label: "non-photo blue",
-    value: "#A4DDED",
-  },
-  {
-    label: "30% Black",
-    value: "#b3b3b3",
-  },
-  {
-    label: "50% Black",
-    value: "#808080",
-  },
-  {
-    label: "Black",
-    value: "#000000",
-  },
-  {
-    label: "Custom (Enter Hexcode)",
-    value: "#ff0000",
-    isTextInput: true,
-  },
-];
 ---
 
-<form data-form-container>
+<form data-form-container data-svg-id={svgId}>
   <fieldset>
     <legend>Grid Type</legend>
     <MiniPreviews

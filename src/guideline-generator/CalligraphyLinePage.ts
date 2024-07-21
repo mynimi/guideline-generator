@@ -83,10 +83,10 @@ export class CalligraphyLinePage extends GridPage {
       addDividerLines: true,
     };
     if ("color" in options) {
-      this.#defaults.lineColor = options.color;
+      this.#defaults.lineColor = options.color || this.#defaults.lineColor;
     }
     if ("stroke" in options) {
-      this.#defaults.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke || this.#defaults.gridStrokeWidth;
     }
     this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
@@ -110,7 +110,7 @@ export class CalligraphyLinePage extends GridPage {
       this.drawCalligraphyLine(gridParent, yLineStart, this.marginLeft, this.width - this.marginRight);
       yLineStart += this.lineHeight + lineGap;
     }
-    this.svgElement.appendChild(gridParent);
+    this.svgElement!.appendChild(gridParent);
   }
 
   private drawCalligraphyLine(parentEl: SVGElement, gridPos: number, lineStart: number, lineEnd: number) {

@@ -35,10 +35,10 @@ export class DotGridPage extends GridPage {
       cellSize: 5,
     };
     if ("color" in options) {
-      this.#defaults.lineColor = options.color;
+      this.#defaults.lineColor = options.color || this.#defaults.lineColor;
     }
     if ("stroke" in options) {
-      this.#defaults.dotSize = options.stroke;
+      this.#defaults.dotSize = options.stroke || this.#defaults.dotSize;
     }
     this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
@@ -75,7 +75,7 @@ export class DotGridPage extends GridPage {
 
     this.drawDotsAtPoints(gridParent, horizontalIntersections, verticalIntersections);
 
-    this.svgElement.appendChild(gridParent);
+    this.svgElement!.appendChild(gridParent);
   }
 
   private generateName(type: "pretty" | "file"): string {

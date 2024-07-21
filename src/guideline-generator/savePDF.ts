@@ -12,7 +12,7 @@ function getOrientation(width:number, height:number): orientationConfig{
   return orientation;
 }
 
-export function generatePDF(gridInstance: {svgElement: any; width: any; height: any; fileName: any;}){
+export function generatePDF(gridInstance: any){
   const svg = gridInstance.svgElement;
   const width = gridInstance.width;
   const height = gridInstance.height;

@@ -35,10 +35,10 @@ export class GraphGridPage extends GridPage {
       cellSize: 5,
     };
     if ("color" in options) {
-      this.#defaults.lineColor = options.color;
+      this.#defaults.lineColor = options.color || this.#defaults.lineColor;
     }
     if ("stroke" in options) {
-      this.#defaults.gridStrokeWidth = options.stroke;
+      this.#defaults.gridStrokeWidth = options.stroke || this.#defaults.gridStrokeWidth;
     }
     this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
@@ -89,7 +89,7 @@ export class GraphGridPage extends GridPage {
       xLineStart += cellSize;
     }
 
-    this.svgElement.appendChild(gridParent);
+    this.svgElement!.appendChild(gridParent);
   }
 
   private generateName(type: "pretty" | "file"): string {
