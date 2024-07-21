@@ -1,10 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
-
-const svgId = "preview";
+import { GridMaker } from "../guideline-generator/GridMaker";
+const gridMaker = new GridMaker();
+const svg = gridMaker.makeSVGString();
 ---
 
 <Base>
+  <!-- <div class="test" set:html={svg}></div> -->
   <div class="test"></div>
 </Base>
 
@@ -13,3 +15,10 @@ const svgId = "preview";
     color: red;
   }
 </style>
+
+<script>
+  import { GridMaker } from "../guideline-generator/GridMaker";
+  const gridMaker = new GridMaker();
+  const test = document.querySelector(".test");
+  test?.append(gridMaker.makeSVG());
+</script>
