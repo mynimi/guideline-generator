@@ -2,7 +2,6 @@
   "name": "guideline-generator",
   "type": "module",
   "version": "0.2.0",
-  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -12,6 +11,7 @@
     "deploy": "npm run build && gh-pages -d dist -b gh-pages"
   },
   "dependencies": {
+    "@astrojs/ts-plugin": "^1.9.0",
     "jspdf": "^2.5.1",
     "modern-normalize": "^2.0.0",
     "svg2pdf.js": "^2.2.4"
@@ -19,8 +19,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.8.2",
     "astro": "^4.12.2",
-    "sass": "^1.77.8",
     "gh-pages": "^6.1.1",
+    "sass": "^1.77.8",
     "typescript": "^5.5.3"
   }
 }

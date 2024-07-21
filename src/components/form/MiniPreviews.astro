@@ -1,7 +1,7 @@
 ---
 type GridType = "line" | "area" | "dot" | "graph";
 
-type MiniPreview = {
+export type MiniPreview = {
   id: string;
   value: string;
   label: string;
@@ -14,15 +14,7 @@ interface Props {
   radioName: string;
 }
 
-const prevs = [
-  { id: "calli-line", value: "line", label: "Calligraphy Line", checked: true, gridType: "line" },
-  { id: "calli-area", value: "area", label: "Calligraphy Area", checked: false, gridType: "area" },
-  { id: "dot", value: "dot", label: "Dot Grid", checked: false, gridType: "dot" },
-  { id: "graph", value: "graph", label: "Graph", checked: false, gridType: "graph" },
-];
-
-const name = "grid-type";
-const { previews = prevs, radioName = name } = Astro.props;
+const { previews, radioName } = Astro.props;
 ---
 
 <div class="mini-previews">
@@ -49,10 +41,10 @@ const { previews = prevs, radioName = name } = Astro.props;
 </div>
 
 <script>
-  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaPage.ts";
-  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLinePage.ts";
-  import { DotGridPage } from "../guideline-generator/DotGridPage.ts";
-  import { GraphGridPage } from "../guideline-generator/GraphGridPage.ts";
+  import { CalligraphyAreaPage } from "../../guideline-generator/CalligraphyAreaPage.ts";
+  import { CalligraphyLinePage } from "../../guideline-generator/CalligraphyLinePage.ts";
+  import { DotGridPage } from "../../guideline-generator/DotGridPage.ts";
+  import { GraphGridPage } from "../../guideline-generator/GraphGridPage.ts";
 
   const previewConfig = {
     documentWidth: 40,

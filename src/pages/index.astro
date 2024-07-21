@@ -1,6 +1,8 @@
 ---
-import MiniPreviews from "../components/MiniPreviews.astro";
+import Form from "../components/form/Form.astro";
 import Base from "../layouts/Base.astro";
+
+const svgId = "preview";
 ---
 
 <Base>
@@ -14,41 +16,7 @@ import Base from "../layouts/Base.astro";
         </p>
         <p>Play with the options and see it change in real time.</p>
       </div>
-      <form data-form-container>
-        <fieldset>
-          <legend>Grid Type</legend>
-          <MiniPreviews />
-        </fieldset>
-      </form>
-      <fieldset class="view-switch">
-        <legend>How many options should be displayed?</legend>
-        <input
-          type="radio"
-          name="config-type"
-          value="minimal"
-          checked
-          id="config-type-minimal"
-          class="visually-hidden"
-        />
-        <label for="config-type-minimal">Minimal</label>
-        <input
-          type="radio"
-          name="config-type"
-          value="balanced"
-          id="config-type-balanced"
-          class="visually-hidden"
-        />
-        <label for="config-type-balanced">Balanced</label>
-        <input
-          type="radio"
-          name="config-type"
-          value="maximal"
-          id="config-type-maximal"
-          class="visually-hidden"
-        />
-        <label for="config-type-maximal">Maximal</label>
-      </fieldset>
-      <div data-field-container></div>
+			<Form svgId={svgId}></Form>
       <div class="config__outro">
         <h2>Export Quirks</h2>
         <p>
@@ -69,6 +37,7 @@ import Base from "../layouts/Base.astro";
     <div class="grid__preview">
       <div
         class="svg-wrapper"
+				id={svgId}
         data-svg-preview
       >
       </div>
