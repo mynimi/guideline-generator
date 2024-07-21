@@ -1,12 +1,18 @@
-import { GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields } from "./GridPage";
+import {
+  GridPage,
+  type GridPageBasicOtions,
+  type GridPageTechnicalOptions,
+  type GridPageExtendedOptions,
+  type RequiredFields,
+} from "./GridPage";
 
 export interface DotGridPageBasicOptions extends GridPageBasicOtions {
   lineColor?: string;
-  cellSize?:number;
+  cellSize?: number;
 }
 
 export interface DotGridPageExtendedOptions extends GridPageExtendedOptions {
-  dotSize?:number;
+  dotSize?: number;
 }
 
 export interface DotGridPageTechOptions extends GridPageTechnicalOptions {}
@@ -16,8 +22,8 @@ export type DotGridPageConfig = DotGridPageBasicOptions & DotGridPageExtendedOpt
 export class DotGridPage extends GridPage {
   #defaults: RequiredFields<DotGridPageConfig>;
   #config: RequiredFields<DotGridPageConfig>;
-  #prettyName:string;
-  #fileName:string;
+  #prettyName: string;
+  #fileName: string;
 
   constructor(options: Partial<DotGridPageConfig> = {}) {
     super(options);
@@ -27,16 +33,16 @@ export class DotGridPage extends GridPage {
       lineColor: parentDefaults.color,
       dotSize: 0.4,
       cellSize: 5,
-    }
-    if ('color' in options) {
+    };
+    if ("color" in options) {
       this.#defaults.lineColor = options.color;
     }
-    if('stroke' in options){
+    if ("stroke" in options) {
       this.#defaults.dotSize = options.stroke;
     }
     this.#config = { ...this.#defaults, ...options };
     this.#prettyName = this.generateName("pretty");
-    this.#fileName = this.generateName('file');
+    this.#fileName = this.generateName("file");
 
     super.fileName = this.#fileName;
     super.prettyName = this.#prettyName;
@@ -53,7 +59,7 @@ export class DotGridPage extends GridPage {
     const horizontalIntersections: number[] = [];
     const verticalIntersections: number[] = [];
 
-    const gridParent = this.createGroup("grid","calli-grid",this.maskId ? this.maskId : undefined);
+    const gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
 
     let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
@@ -72,20 +78,20 @@ export class DotGridPage extends GridPage {
     this.svgElement.appendChild(gridParent);
   }
 
-  private generateName(type: 'pretty' | 'file'): string {
-    const separator = type === 'pretty' ? ' ' : '_';
+  private generateName(type: "pretty" | "file"): string {
+    const separator = type === "pretty" ? " " : "_";
     const name = `dot${separator}grid${separator}${this.#config.cellSize!}mm`;
     return `${name}`;
   }
 
-  private drawDotsAtPoints(parentEl: SVGElement,horizontalPoints: number[],verticalPoints: number[]): void {
+  private drawDotsAtPoints(parentEl: SVGElement, horizontalPoints: number[], verticalPoints: number[]): void {
     for (const horizontalPoint of horizontalPoints) {
       for (const verticalPoint of verticalPoints) {
-        const dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
-        dot.setAttribute("cx",this.formatCoordinate(verticalPoint).toString());
-        dot.setAttribute("cy",this.formatCoordinate(horizontalPoint).toString());
-        dot.setAttribute("r",(this.#config.dotSize!/2).toString());
-        dot.setAttribute("fill",this.#config.lineColor!);
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("cx", this.formatCoordinate(verticalPoint).toString());
+        dot.setAttribute("cy", this.formatCoordinate(horizontalPoint).toString());
+        dot.setAttribute("r", (this.#config.dotSize! / 2).toString());
+        dot.setAttribute("fill", this.#config.lineColor!);
         parentEl.appendChild(dot);
       }
     }

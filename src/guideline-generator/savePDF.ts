@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf'
 import 'svg2pdf.js'
 
-import {jsPDFOptions} from 'jspdf';
+import {type jsPDFOptions} from 'jspdf';
 
 type orientationConfig = "p" | "portrait" | "l" | "landscape"
 function getOrientation(width:number, height:number): orientationConfig{

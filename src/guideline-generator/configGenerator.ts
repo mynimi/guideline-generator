@@ -1,6 +1,4 @@
-/** @format */
-
-import { FieldConfig, FieldSet, fieldSetId } from "./FieldConfig";
+import { type FieldConfig, type FieldSet, type fieldSetId } from "./FieldConfig";
 
 export function generateFieldsets(): FieldSet[] {
   return [

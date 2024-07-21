@@ -1,0 +1,152 @@
+---
+type GridType = "line" | "area" | "dot" | "graph";
+
+type MiniPreview = {
+  id: string;
+  value: string;
+  label: string;
+  checked: boolean;
+  gridType: GridType;
+};
+
+interface Props {
+  previews: MiniPreview[];
+  radioName: string;
+}
+
+const prevs = [
+  { id: "calli-line", value: "line", label: "Calligraphy Line", checked: true, gridType: "line" },
+  { id: "calli-area", value: "area", label: "Calligraphy Area", checked: false, gridType: "area" },
+  { id: "dot", value: "dot", label: "Dot Grid", checked: false, gridType: "dot" },
+  { id: "graph", value: "graph", label: "Graph", checked: false, gridType: "graph" },
+];
+
+const name = "grid-type";
+const { previews = prevs, radioName = name } = Astro.props;
+---
+
+<div class="mini-previews">
+  {
+    previews.map((prev) => (
+      <div class="mini-previews__prev">
+        <label>
+          <input
+            type="radio"
+            name={radioName}
+            id={`grid-type-${prev.id}`}
+            value={prev.value}
+            checked={prev.checked}
+          />
+          <div
+            class="mini-previews__svg-wrapper"
+            data-grid-type={prev.gridType}
+          />
+          <span>{prev.label}</span>
+        </label>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaPage.ts";
+  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLinePage.ts";
+  import { DotGridPage } from "../guideline-generator/DotGridPage.ts";
+  import { GraphGridPage } from "../guideline-generator/GraphGridPage.ts";
+
+  const previewConfig = {
+    documentWidth: 40,
+    documentHeight: 40,
+    documentMarginTop: 2,
+    documentMarginBottom: 0,
+    documentMarginLeft: 2,
+    documentMarginRight: 2,
+    areaBorderRadius: 3,
+    addTitle: false,
+    textFontSize: 0,
+    textLineHeight: 0,
+  };
+
+  const dotPreview = document.querySelector("[data-grid-type='dot']");
+  const calliLinePreview = document.querySelector("[data-grid-type='line']");
+  const calliAreaPreview = document.querySelector("[data-grid-type='area']");
+  const graphPreview = document.querySelector("[data-grid-type='graph']");
+
+  if(dotPreview) {
+    new DotGridPage({
+      container: dotPreview,
+      ...previewConfig,
+      dotSize: 1,
+      cellSize: 5,
+    });
+  }
+
+  if(calliLinePreview) {
+    new CalligraphyLinePage({
+      container: calliLinePreview,
+      ...previewConfig,
+      xHeight: 4,
+      areaBlockBuffer: 2,
+    });
+  }
+
+  if(calliAreaPreview) {
+    new CalligraphyAreaPage({
+      container: calliAreaPreview,
+      ...previewConfig,
+      xHeight: 10,
+    });
+  }
+
+  if(graphPreview) {
+    new GraphGridPage({
+      container: graphPreview,
+      ...previewConfig,
+      gridStrokeWidth: 0.4,
+      cellSize: 5,
+    });
+  }
+</script>
+
+<style lang="scss">
+  .mini-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    gap: 1rem;
+
+    &__svg-wrapper {
+      background: white;
+      margin-bottom: 0.5em;
+    }
+
+    input {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    label {
+      display: block;
+      font-family: "Victor Mono", monospace;
+      font-size: 0.8em;
+      text-align: center;
+      position: relative;
+
+      &:hover {
+        .mini-previews__svg-wrapper {
+          outline: 1px solid var(--c-interactive--hover);
+          outline-offset: 2px;
+        }
+      }
+      &:focus {
+        outline: var(--s-focus-outline-line) var(--focus-outline-style) var(--c-focus);
+        outline-offset: var(--s-focus-outline-offset);
+      }
+    }
+
+    input:checked ~ .mini-previews__svg-wrapper {
+      outline: 2px solid var(--c-interactive--active);
+      outline-offset: 2px;
+    }
+  }
+</style>

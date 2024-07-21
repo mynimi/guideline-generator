@@ -1,24 +1,26 @@
 {
   "name": "guideline-generator",
-  "private": true,
-  "version": "0.1.0-beta",
+  "type": "module",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "host": "vite --host",
-    "build": "tsc && vite build --base=/guideline-generator/",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
     "deploy": "npm run build && gh-pages -d dist -b gh-pages"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.0",
-    "sass": "^1.69.5",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
   },
   "dependencies": {
     "jspdf": "^2.5.1",
     "modern-normalize": "^2.0.0",
-    "svg2pdf.js": "^2.2.3"
+    "svg2pdf.js": "^2.2.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.8.2",
+    "astro": "^4.12.2",
+    "sass": "^1.77.8",
+    "gh-pages": "^6.1.1",
+    "typescript": "^5.5.3"
   }
 }

@@ -1,0 +1,92 @@
+---
+import "./style.scss";
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      media="(prefers-color-scheme: light)"
+      rel="icon"
+      href="/favicon-32.png"
+      sizes="32x32"
+    />
+    <link
+      media="(prefers-color-scheme: light)"
+      rel="icon"
+      href="/favicon-128.png"
+      sizes="128x128"
+    />
+    <link
+      media="(prefers-color-scheme: light)"
+      rel="icon"
+      href="/favicon-180.png"
+      sizes="180x180"
+    />
+    <link
+      media="(prefers-color-scheme: light)"
+      rel="icon"
+      href="/favicon-192.png"
+      sizes="192x192"
+    />
+
+    <link
+      media="(prefers-color-scheme: dark)"
+      rel="icon"
+      href="/favicon-dark-32.png"
+      sizes="32x32"
+    />
+    <link
+      media="(prefers-color-scheme: dark)"
+      rel="icon"
+      href="/favicon-dark-128.png"
+      sizes="128x128"
+    />
+    <link
+      media="(prefers-color-scheme: dark)"
+      rel="icon"
+      href="/favicon-dark-180.png"
+      sizes="180x180"
+    />
+    <link
+      media="(prefers-color-scheme: dark)"
+      rel="icon"
+      href="/favicon-dark-192.png"
+      sizes="192x192"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Guideline Maker - by halfapx</title>
+    <meta name="description" content="A super-flexible generator for Calligraphy Writing Paper. It also can make graph and dot grid paper, in PDF and SVG format and can be printed from within the browser.">
+    <meta property="og:title" content="Guideline Maker by halfapx">
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,700;0,7..72,900;1,7..72,300;1,7..72,400;1,7..72,700;1,7..72,900"
+      rel="stylesheet"
+    />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLLXNLSNBS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-HLLXNLSNBS');
+    </script>
+  </head>
+  <body>
+    <slot />
+    <footer>&copy; halfapx &middot; 2023</footer>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-@import '../node_modules/modern-normalize/modern-normalize.css';
+@import "../../node_modules/modern-normalize/modern-normalize.css";
 
 @mixin font-face ($fam, $path, $weight:normal, $style:normal){
   @font-face {
@@ -417,47 +417,6 @@ label {
   }
 }
 
-.mini-previews {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
-  gap: 1rem;
-
-  &__svg-wrapper {
-    background: white;
-    margin-bottom: .5em;
-  }
-
-  input {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  label {
-    display: block;
-    font-family: 'Victor Mono', monospace;
-    font-size: 0.8em;
-    text-align: center;
-    position: relative;
-
-    &:hover {
-      .mini-previews__svg-wrapper {
-        outline: 1px solid var(--c-interactive--hover);
-        outline-offset: 2px;
-      }
-    }
-    &:focus {
-      outline: var(--s-focus-outline-line) var(--focus-outline-style) var(--c-focus);
-      outline-offset: var(--s-focus-outline-offset);
-    }
-  }
-
-  input:checked  ~ .mini-previews__svg-wrapper {
-    outline: 2px solid var(--c-interactive--active);
-    outline-offset: 2px;
-  }
-}
-
 .color-group {
   label {
     width: 100%;
@@ -481,5 +440,19 @@ label {
         border-radius: 50%; ;
       }
     }
+  }
+}
+
+.feat {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  grid-template-columns: 1fr;
+  height: 100vh;
+
+  .mini-previews {
+    width: 80%;
+    margin-inline: auto;
   }
 }

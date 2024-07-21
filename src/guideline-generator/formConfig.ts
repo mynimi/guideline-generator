@@ -17,9 +17,9 @@ import {
   generateFieldsets,
 } from "./configGenerator";
 
-import { FieldConfig, FieldSet } from "./FieldConfig.ts";
+import { type FieldConfig, type FieldSet } from "./FieldConfig.ts";
 
-export const allFieldSets:FieldSet[] = generateFieldsets();
+export const allFieldSets: FieldSet[] = generateFieldsets();
 const basicConfigShared: FieldConfig[] = generateBasicConfig();
 const balancedConfigShared: FieldConfig[] = generateBalancedConfig();
 const maximalConfigShared: FieldConfig[] = generateMaximalConfig();

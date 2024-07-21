@@ -1,7 +1,3 @@
-/** @format */
-
-import "./style.scss";
-
 import { DotGridPage } from "./DotGridPage";
 import { CalligraphyLinePage } from "./CalligraphyLinePage";
 import { CalligraphyAreaPage } from "./CalligraphyAreaPage";

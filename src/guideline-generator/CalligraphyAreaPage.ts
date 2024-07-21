@@ -1,4 +1,10 @@
-import {GridPage, GridPageBasicOtions, GridPageTechnicalOptions, GridPageExtendedOptions, RequiredFields} from "./GridPage";
+import {
+  GridPage,
+  type GridPageBasicOtions,
+  type GridPageTechnicalOptions,
+  type GridPageExtendedOptions,
+  type RequiredFields,
+} from "./GridPage";
 
 interface Point {
   x: number;
@@ -84,7 +90,7 @@ export class CalligraphyAreaPage extends GridPage {
     for (let i = 0; i <= horizontalReps; i++) {
       this.drawSolidLine(horizontalLines, "horizontal", yLineStart, lineStart, lineEnd, color, stroke);
       if (this.#config.addDividerLines) {
-        if(i < horizontalReps){
+        if (i < horizontalReps) {
           const gridPos = yLineStart + xHeight / 2;
           this.drawDashedLine(horizontalLines, "horizontal", gridPos, lineStart, lineEnd, dotSize, color);
         }
@@ -143,7 +149,13 @@ export class CalligraphyAreaPage extends GridPage {
     this.svgElement.appendChild(gridParent);
   }
 
-  generateParallelCoordinates(x1: number, y1: number, x2: number, y2: number, distance: number): { x1: number; y1: number; x2: number; y2: number } {
+  generateParallelCoordinates(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    distance: number
+  ): { x1: number; y1: number; x2: number; y2: number } {
     // Calculate offsets for the new line based on the distance provided
     const xOffset = distance;
 
@@ -167,7 +179,16 @@ export class CalligraphyAreaPage extends GridPage {
     parentEl.appendChild(line);
   }
 
-  drawLineWithinArea(parentEl: SVGElement, x1: number, y1: number, x2: number, y2: number, color: string, stroke: number, maxLength?: number) {
+  drawLineWithinArea(
+    parentEl: SVGElement,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    color: string,
+    stroke: number,
+    maxLength?: number
+  ) {
     const intersectionPoints = this.calculateIntersectionPoints(x1, y1, x2, y2); // Corrected parameter order
 
     if (intersectionPoints.length > 0) {
@@ -216,7 +237,7 @@ export class CalligraphyAreaPage extends GridPage {
     const leftIntersectionY = slope * rectX + yIntercept;
     const rightIntersectionY = slope * (rectX + rectWidth) + yIntercept;
 
-    const intersectionPoints:Point[] = [];
+    const intersectionPoints: Point[] = [];
 
     if (isInsideRectangle(topIntersectionX, rectY)) {
       intersectionPoints.push({ x: topIntersectionX, y: rectY });
