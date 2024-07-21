@@ -44,13 +44,12 @@ const svgId = "preview";
     </div>
   </div>
 </Base>
-
 <script>
-  import { DotGridPage } from "../guideline-generator/DotGridPage";
-  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLinePage";
-  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaPage";
-  import { GraphGridPage } from "../guideline-generator/GraphGridPage";
-  import { type FieldConfig } from "../guideline-generator/FieldConfig";
+  import { DotGridPage } from "../guideline-generator/old/DotGridPage";
+  import { CalligraphyLinePage } from "../guideline-generator/old/CalligraphyLinePage";
+  import { CalligraphyAreaPage } from "../guideline-generator/old/CalligraphyAreaPage";
+  import { GraphGridPage } from "../guideline-generator/old/GraphGridPage";
+  import { type FieldConfig } from "../guideline-generator/old/FieldConfig";
   import {
     allFieldSets,
     minimalFormConfigLine,
@@ -65,9 +64,9 @@ const svgId = "preview";
     maximalFormConfigArea,
     maximalFormConfigDot,
     maximalFormConfigGraph,
-  } from "../guideline-generator/formConfig";
-  import { saveSVGAsFile } from "../guideline-generator/saveSVG";
-  import { generatePDF } from "../guideline-generator/savePDF";
+  } from "../guideline-generator/old/formConfig";
+  import { saveSVGAsFile } from "../guideline-generator/old/saveSVG";
+  import { generatePDF } from "../guideline-generator/old/savePDF";
   type GridType = "line" | "area" | "dot" | "graph";
   type ConfigPersonality = "minimal" | "balanced" | "maximal";
 

@@ -31,7 +31,7 @@ export type GridPageConfig = GridPageBasicOptions & GridPageExtendedOptions & Gr
 export class GridPage {
   #defaults: RequiredFields<GridPageConfig>;
   #config: RequiredFields<GridPageConfig>;
-  #svg!: SVGElement | string;
+  #svg!: SVGElement;
   #maskId?: string;
   #prettyName: string = this.generateGridName("pretty");
   #fileName: string = this.generateGridName("file");
@@ -51,7 +51,7 @@ export class GridPage {
     return this.#defaults;
   }
 
-  get svgElement(): SVGElement | undefined | string {
+  get svgElement(): SVGElement | undefined {
     return this.#svg;
   }
 
@@ -327,7 +327,7 @@ export class GridPage {
     return `${name}`;
   }
 
-  private createDocument(): SVGElement | string {
+  private createDocument(): SVGElement {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const viewBox = `0 0 ${this.width} ${this.height}`;
     // svg.setAttribute("width", this.width.toString());
