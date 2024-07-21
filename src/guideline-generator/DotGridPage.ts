@@ -1,12 +1,12 @@
 import {
   GridPage,
-  type GridPageBasicOtions,
+  type GridPageBasicOptions,
   type GridPageTechnicalOptions,
   type GridPageExtendedOptions,
   type RequiredFields,
 } from "./GridPage";
 
-export interface DotGridPageBasicOptions extends GridPageBasicOtions {
+export interface DotGridPageBasicOptions extends GridPageBasicOptions {
   lineColor?: string;
   cellSize?: number;
 }

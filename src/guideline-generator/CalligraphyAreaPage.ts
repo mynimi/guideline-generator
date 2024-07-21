@@ -1,6 +1,6 @@
 import {
   GridPage,
-  type GridPageBasicOtions,
+  type GridPageBasicOptions,
   type GridPageTechnicalOptions,
   type GridPageExtendedOptions,
   type RequiredFields,
@@ -11,7 +11,7 @@ interface Point {
   y: number;
 }
 
-export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOtions {
+export interface CalligraphyAreaPageBasicOptions extends GridPageBasicOptions {
   lineColor?: string;
   xHeight?: number;
   slantAngle?: number;

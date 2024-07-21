@@ -1,12 +1,12 @@
 import {
   GridPage,
-  type GridPageBasicOtions,
+  type GridPageBasicOptions,
   type GridPageTechnicalOptions,
   type GridPageExtendedOptions,
   type RequiredFields,
 } from "./GridPage";
 
-export interface CalligraphyLinePageBasicOptions extends GridPageBasicOtions {
+export interface CalligraphyLinePageBasicOptions extends GridPageBasicOptions {
   lineColor?: string;
   xHeight?: number;
   ratioAscender?: number;
