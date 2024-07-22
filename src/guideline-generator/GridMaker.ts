@@ -24,7 +24,7 @@ export interface GridPageTechnicalOptions {
   textLineHeight?: number;
 }
 
-export type outputType = "dom" | "string";
+export type OutputType = "dom" | "string";
 
 export type RequiredFields<T> = { [K in keyof T]-?: T[K] };
 
@@ -43,6 +43,15 @@ export class GridMaker {
   readonly #fontColor: string = "#808080";
   readonly #copyRightText: string = "© grid code.halfapx.com/guideline-generator/";
   readonly #addCopyright: boolean = true;
+  #maskId: string = '';
+
+  get maskId(): string {
+    return this.#maskId;
+  }
+
+  set maskId(id: string) {
+    this.#maskId = id;
+  }
 
   get defaultValues(): RequiredFields<GridPageConfig> {
     return this.#defaults;
@@ -149,7 +158,7 @@ export class GridMaker {
     return svg;
   }
 
-  makeSVGString(): string {
+  makeSVGString(addCloseTag:boolean = true): string {
     let svgString = this.createDocument("string");
     if (this.#addCopyright) {
       svgString += this.addCopyright("string") as string;
@@ -161,10 +170,13 @@ export class GridMaker {
       svgString += this.addMask("string") as string;
       svgString += this.addRectangle("string", "transparent", this.#config.areaStrokeColor) as string;
     }
-    return svgString + "</svg>";
+    if(addCloseTag) {
+      svgString += "</svg>";
+    }
+    return svgString as string;
   }
 
-  createGroup(output: outputType, className?: string, idName?: string, maskId?: string): Element | string {
+  createGroup(output: OutputType, className?: string, idName?: string, maskId?: string): Element | string {
     if (output === "dom") {
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       if (className) {
@@ -189,7 +201,7 @@ export class GridMaker {
   }
 
   addLine(
-    output: outputType,
+    output: OutputType,
     x1: number,
     y1: number,
     x2: number,
@@ -226,7 +238,7 @@ export class GridMaker {
   }
 
   drawSolidLine(
-    output: outputType,
+    output: OutputType,
     orientation: "horizontal" | "vertical",
     gridPos: number,
     lineStart: number,
@@ -288,7 +300,7 @@ export class GridMaker {
   }
 
   drawSlantLine(
-    output: outputType,
+    output: OutputType,
     lineHeight: number,
     angle: number,
     xStart: number,
@@ -313,7 +325,7 @@ export class GridMaker {
     return `${baseId}-${uniqueIdSuffix}`;
   }
 
-  private addTitle(output: outputType): Element | string {
+  private addTitle(output: OutputType): Element | string {
     const titleFontSize = this.#config.textFontSize!;
     const titleTopPos = titleFontSize * this.#config.textLineHeight! + this.#config.documentMarginTop!;
     const titleLeftPos = this.#config.documentWidth! - this.#config.documentMarginRight!;
@@ -321,7 +333,7 @@ export class GridMaker {
     return this.addText(output, this.prettyName, titleFontSize, "end", titleTopPos, titleLeftPos);
   }
 
-  private addCopyright(output: outputType): Element | string {
+  private addCopyright(output: OutputType): Element | string {
     const fontSize = this.#config.textFontSize! * this.#copyrightSizeFactor;
     const topPos = this.height - this.#config.documentMarginBottom!;
     const leftPos = this.#config.documentMarginLeft!;
@@ -335,7 +347,7 @@ export class GridMaker {
     return `${name}`;
   }
 
-  private createDocument(output: outputType): SVGElement | string {
+  private createDocument(output: OutputType): SVGElement | string {
     if (output === "dom") {
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       const viewBox = `0 0 ${this.width} ${this.height}`;
@@ -352,8 +364,9 @@ export class GridMaker {
     }
   }
 
-  private addMask(output: outputType): Element | string {
+  private addMask(output: OutputType): Element | string {
     const maskId = this.generateUniqueId("mask");
+    this.maskId = maskId;
     if (output === "dom") {
       const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
       mask.setAttribute("id", maskId);
@@ -369,7 +382,7 @@ export class GridMaker {
     }
   }
 
-  private addRectangle(output: outputType, fillColor: string, strokeColor: string): Element | string {
+  private addRectangle(output: OutputType, fillColor: string, strokeColor: string): Element | string {
     if (output === "dom") {
       const rectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rectangle.setAttribute("x", this.marginLeft.toString());
@@ -398,7 +411,7 @@ export class GridMaker {
   }
 
   private addText(
-    output: outputType,
+    output: OutputType,
     text: string,
     fontSize: number,
     textAnchor: "start" | "end",

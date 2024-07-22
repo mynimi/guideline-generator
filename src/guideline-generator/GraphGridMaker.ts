@@ -1,0 +1,126 @@
+import {
+  GridMaker,
+  type GridPageBasicOptions,
+  type GridPageExtendedOptions,
+  type GridPageTechnicalOptions,
+  type OutputType as OutputType,
+  type RequiredFields,
+} from "./GridMaker";
+
+export interface GraphGridPageBasicOptions extends GridPageBasicOptions {
+  lineColor?: string;
+  cellSize?: number;
+}
+
+export interface GraphGridPageExtendedOptions extends GridPageExtendedOptions {
+  gridStrokeWidth?: number;
+}
+
+export interface GraphGridPageTechOptions extends GridPageTechnicalOptions {}
+
+export type GraphGridPageConfig = GraphGridPageBasicOptions & GraphGridPageExtendedOptions & GraphGridPageTechOptions;
+
+export class GraphGridPage extends GridMaker {
+  #defaults: RequiredFields<GraphGridPageConfig>;
+  #config: RequiredFields<GraphGridPageConfig>;
+  #prettyName: string;
+  #fileName: string;
+
+  constructor(options: Partial<GraphGridPageConfig> = {}) {
+    super(options);
+    const parentDefaults = this.defaultValues;
+    this.#defaults = {
+      ...parentDefaults,
+      lineColor: parentDefaults.color,
+      gridStrokeWidth: parentDefaults.stroke,
+      cellSize: 5,
+    };
+    if ("color" in options) {
+      this.#defaults.lineColor = options.color || this.#defaults.lineColor;
+    }
+    if ("stroke" in options) {
+      this.#defaults.gridStrokeWidth = options.stroke || this.#defaults.gridStrokeWidth;
+    }
+    this.#config = { ...this.#defaults, ...options };
+    this.#prettyName = this.generateName("pretty");
+    this.#fileName = this.generateName("file");
+
+    super.fileName = this.#fileName;
+    super.prettyName = this.#prettyName;
+  }
+
+  makeSVG(): SVGElement {
+    const svg = super.makeSVG();
+    svg.appendChild(this.addGraphGrid("dom") as Element);
+    return svg;
+  }
+
+  makeSVGString(): string {
+    let svgString = super.makeSVGString(false);
+    svgString += this.addGraphGrid("string");
+    svgString += "</svg>";
+    return svgString;
+  }
+
+  private addGraphGrid(output: OutputType): Element | string {
+    const cellSize = this.#config.cellSize!;
+    const xEnd = this.width - this.marginRight;
+    const yEnd = this.height - this.marginBottom;
+    const horizontalReps = this.gridHeight / cellSize;
+    const horizontalRemainder = this.gridHeight % cellSize;
+    const verticalReps = this.gridWidth / cellSize;
+    const verticalRemainder = this.gridWidth % cellSize;
+
+    let gridParent = this.createGroup(output, "grid", "calli-grid", this.maskId ? this.maskId : undefined);
+
+    let yLineStart = this.marginTop + horizontalRemainder / 2;
+    for (let i = 0; i <= horizontalReps; i++) {
+      const line = this.drawSolidLine(
+        output,
+        "horizontal",
+        yLineStart,
+        this.marginLeft,
+        xEnd,
+        this.#config.lineColor,
+        this.#config.gridStrokeWidth
+      );
+      yLineStart += cellSize;
+      if (output === "dom") {
+        (gridParent as Element).appendChild(line as Element);
+      } else {
+        (gridParent as string) += (line as string);
+      }
+    }
+
+    let xLineStart = this.marginLeft + verticalRemainder / 2;
+    for (let i = 0; i <= verticalReps; i++) {
+      const line = this.drawSolidLine(
+        output,
+        "vertical",
+        xLineStart,
+        this.marginTop,
+        yEnd,
+        this.#config.lineColor,
+        this.#config.gridStrokeWidth
+      );
+      xLineStart += cellSize;
+      if (output === "dom") {
+        (gridParent as Element).appendChild(line as Element);
+      } else {
+        (gridParent as string) += (line as string);
+      }
+    }
+
+    if(output === "string") {
+      gridParent += "</g>";
+    }
+
+    return gridParent;
+  }
+
+  private generateName(type: "pretty" | "file"): string {
+    const separator = type === "pretty" ? " " : "_";
+    const name = `graph${separator}${this.#config.cellSize!}mm`;
+    return `${name}`;
+  }
+}
