@@ -207,7 +207,10 @@ export class GridMaker {
     x2: number,
     y2: number,
     color: string,
-    stroke: number
+    stroke: number | string,
+    strokeWidth?: string,
+    srokeDashArray?: string,
+    strokeLineCap?: "round" | "square" | "butt"
   ): Element | string {
     const formatX1 = this.formatCoordinate(x1).toString();
     const formatX2 = this.formatCoordinate(x2).toString();
@@ -216,12 +219,19 @@ export class GridMaker {
 
     if (output === "dom") {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      const strokeWidth = typeof stroke === "string" ? stroke : stroke.toString();
       line.setAttribute("x1", formatX1);
       line.setAttribute("y1", formatY1);
       line.setAttribute("x2", formatX2);
       line.setAttribute("y2", formatY2);
       line.setAttribute("stroke", color);
-      line.setAttribute("stroke-width", stroke.toString());
+      line.setAttribute("stroke-width", strokeWidth);
+      if (srokeDashArray) {
+        line.setAttribute("stroke-dasharray", srokeDashArray);
+      }
+      if (strokeLineCap) {
+        line.setAttribute("stroke-linecap", strokeLineCap);
+      }
       return line;
     } else {
       return /*html*/ `
@@ -232,6 +242,8 @@ export class GridMaker {
           y2="${formatY2}" 
           stroke="${color}" 
           stroke-width="${stroke}"
+          ${srokeDashArray ? `stroke-dasharray="${srokeDashArray}"` : ""}
+          ${strokeLineCap ? `stroke-linecap="${strokeLineCap}"` : ""}
         />
       `;
     }
@@ -265,38 +277,30 @@ export class GridMaker {
     return line;
   }
 
-  /* TODO, use addLine */
   drawDashedLine(
-    parentEl: SVGElement,
+    output: OutputType,
     orientation: "horizontal" | "vertical",
     gridPos: number,
     lineStart: number,
     lineEnd: number,
     dotRadius: number,
     dotColor: string
-  ) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ): Element | string {
     const dotSize = dotRadius * 2;
     const dotGap = dotRadius * 4;
-
-    if (orientation === "horizontal") {
-      line.setAttribute("x1", this.formatCoordinate(lineStart));
-      line.setAttribute("y1", this.formatCoordinate(gridPos));
-      line.setAttribute("x2", this.formatCoordinate(lineEnd));
-      line.setAttribute("y2", this.formatCoordinate(gridPos));
-    } else {
-      line.setAttribute("x1", this.formatCoordinate(gridPos));
-      line.setAttribute("y1", this.formatCoordinate(lineStart));
-      line.setAttribute("x2", this.formatCoordinate(gridPos));
-      line.setAttribute("y2", this.formatCoordinate(lineEnd));
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    if(orientation === "horizontal") {
+      x1 = lineStart;
+      x2 = lineEnd;
+      y1 = y2 = gridPos;
+    }
+    if(orientation === "vertical") {
+      y1 = lineStart;
+      y2 = lineEnd;
+      x1 = x2 = gridPos;
     }
 
-    line.setAttribute("stroke", dotColor);
-    line.setAttribute("stroke-width", dotSize.toString());
-    line.setAttribute("stroke-linecap", "round");
-    line.setAttribute("stroke-dasharray", `0,${dotGap}`);
-
-    parentEl.appendChild(line);
+    return this.addLine(output, x1, y1, x2, y2, dotColor, dotSize, `0,${dotGap.toString}`, "round");
   }
 
   drawSlantLine(

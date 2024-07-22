@@ -2,7 +2,9 @@
 import Base from "../layouts/Base.astro";
 import { GridMaker } from "../guideline-generator/GridMaker";
 import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
-const gridMaker = new GraphGridPage();
+import {DotGridPage} from "../guideline-generator/DotGridMaker";
+import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
+const gridMaker = new CalligraphyAreaPage();
 const svg = gridMaker.makeSVGString();
 ---
 
@@ -32,7 +34,35 @@ const svg = gridMaker.makeSVGString();
 <script>
   import { GridMaker } from "../guideline-generator/GridMaker";
   import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
-  const gridMaker = new GraphGridPage();
+  import {DotGridPage} from "../guideline-generator/DotGridMaker";
+  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
+  const gridMaker = new CalligraphyAreaPage();
   const test = document.querySelector(".test");
   test?.append(gridMaker.makeSVG());
+
+
+// Measure performance of makeSVGString
+const startSvgString = performance.now();
+gridMaker.makeSVGString();
+const endSvgString = performance.now();
+const durationSvgString = endSvgString - startSvgString;
+
+// Measure performance of makeSVG
+const startSvg = performance.now();
+gridMaker.makeSVG();
+const endSvg = performance.now();
+const durationSvg = endSvg - startSvg;
+
+// Log the results
+console.log(`makeSVGString took ${durationSvgString} milliseconds.`);
+console.log(`makeSVG took ${durationSvg} milliseconds.`);
+
+// Compare the results
+if (durationSvgString < durationSvg) {
+  console.log('makeSVGString is more performant.');
+} else if (durationSvgString > durationSvg) {
+  console.log('makeSVG is more performant.');
+} else {
+  console.log('Both functions have similar performance.');
+}
 </script>
