@@ -4,7 +4,8 @@ import { GridMaker } from "../guideline-generator/GridMaker";
 import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
 import {DotGridPage} from "../guideline-generator/DotGridMaker";
 import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
-const gridMaker = new CalligraphyAreaPage();
+import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLineMaker";
+const gridMaker = new CalligraphyLinePage();
 const svg = gridMaker.makeSVGString();
 ---
 
@@ -36,7 +37,8 @@ const svg = gridMaker.makeSVGString();
   import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
   import {DotGridPage} from "../guideline-generator/DotGridMaker";
   import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
-  const gridMaker = new CalligraphyAreaPage();
+  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLineMaker";
+const gridMaker = new CalligraphyLinePage();
   const test = document.querySelector(".test");
   test?.append(gridMaker.makeSVG());
 

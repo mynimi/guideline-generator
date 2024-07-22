@@ -207,8 +207,7 @@ export class GridMaker {
     x2: number,
     y2: number,
     color: string,
-    stroke: number | string,
-    strokeWidth?: string,
+    stroke: number,
     srokeDashArray?: string,
     strokeLineCap?: "round" | "square" | "butt"
   ): Element | string {
@@ -216,16 +215,14 @@ export class GridMaker {
     const formatX2 = this.formatCoordinate(x2).toString();
     const formatY1 = this.formatCoordinate(y1).toString();
     const formatY2 = this.formatCoordinate(y2).toString();
-
     if (output === "dom") {
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      const strokeWidth = typeof stroke === "string" ? stroke : stroke.toString();
       line.setAttribute("x1", formatX1);
       line.setAttribute("y1", formatY1);
       line.setAttribute("x2", formatX2);
       line.setAttribute("y2", formatY2);
       line.setAttribute("stroke", color);
-      line.setAttribute("stroke-width", strokeWidth);
+      line.setAttribute("stroke-width", stroke.toString());
       if (srokeDashArray) {
         line.setAttribute("stroke-dasharray", srokeDashArray);
       }
@@ -299,8 +296,8 @@ export class GridMaker {
       y2 = lineEnd;
       x1 = x2 = gridPos;
     }
-
-    return this.addLine(output, x1, y1, x2, y2, dotColor, dotSize, `0,${dotGap.toString}`, "round");
+ 
+    return this.addLine(output, x1, y1, x2, y2, dotColor, dotSize, `0,${dotGap.toString()}`, "round");
   }
 
   drawSlantLine(
