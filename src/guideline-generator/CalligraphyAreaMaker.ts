@@ -1,4 +1,11 @@
-import {GridMaker, type GridPageBasicOptions, type GridPageExtendedOptions, type GridPageTechnicalOptions, type OutputType, type RequiredFields} from "./GridMaker";
+import {
+  GridMaker,
+  type GridPageBasicOptions,
+  type GridPageExtendedOptions,
+  type GridPageTechnicalOptions,
+  type OutputType,
+  type RequiredFields,
+} from "./GridMaker";
 
 interface Point {
   x: number;
@@ -59,18 +66,18 @@ export class CalligraphyAreaPage extends GridMaker {
 
   makeSVG(): SVGElement {
     const svg = super.makeSVG();
-    svg.appendChild(this.addCalligraphyArea("dom") as Element);
+    svg.innerHTML += this.addCalligraphyArea();
     return svg;
   }
 
   makeSVGString(): string {
     let svgString = super.makeSVGString(false);
-    svgString += this.addCalligraphyArea("string");
+    svgString += this.addCalligraphyArea();
     svgString += "</svg>";
     return svgString;
   }
 
-  private addCalligraphyArea(output: OutputType): Element | string {
+  private addCalligraphyArea(): string {
     const xHeight = this.#config.xHeight;
     const horizontalReps = this.gridHeight / xHeight;
     const horizontalRemainder = this.gridHeight % xHeight;
@@ -86,39 +93,27 @@ export class CalligraphyAreaPage extends GridMaker {
     const slantSpacing = this.#config.slantAngleGap;
     // we're using the diagonal length as a basis to ensure we cover the entire area with our function
     const slantReps = rectDiagonal / slantSpacing;
-    
-    let gridParent = this.createGroup(output, "grid", "calli-grid", this.maskId ? this.maskId : undefined);
 
-    let horizontalLines = this.createGroup(output, "horizontal-lines");
+    let gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
+
+    let horizontalLines = this.createGroup("horizontal-lines");
     let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
-      const line = this.drawSolidLine(output, "horizontal", yLineStart, lineStart, lineEnd, color, stroke);
+      const line = this.drawSolidLine("horizontal", yLineStart, lineStart, lineEnd, color, stroke);
       if (this.#config.addDividerLines) {
         if (i < horizontalReps) {
           const gridPos = yLineStart + xHeight / 2;
-          const line = this.drawDashedLine(output, "horizontal", gridPos, lineStart, lineEnd, dotSize, color);
-          if(output === "dom") {
-            (horizontalLines as Element).appendChild(line as Element);
-          } else {
-            (horizontalLines as string) += (line as string);
-          }
+          const line = this.drawDashedLine("horizontal", gridPos, lineStart, lineEnd, dotSize, color);
+          horizontalLines += line;
         }
       }
       yLineStart += xHeight;
-      if(output === "dom") {
-        (horizontalLines as Element).appendChild(line as Element);
-      } else {
-        (horizontalLines as string) += (line as string);
-      }
+      horizontalLines += line;
     }
-    if(output === "dom") {
-      (gridParent as Element).appendChild(horizontalLines as Element);
-    } else {
-      (gridParent as string) += (horizontalLines as string);
-    }
+    gridParent += horizontalLines;
 
-    let slantLines = this.createGroup(output, "slant-lines");
-    
+    let slantLines = this.createGroup("slant-lines");
+
     const angleRad = (lineAngle * Math.PI) / 180;
     const centerLineLength = rectDiagonal / 2;
     let lineStartX = rectCenterX - centerLineLength * Math.cos(angleRad);
@@ -126,39 +121,38 @@ export class CalligraphyAreaPage extends GridMaker {
     let lineEndX = rectCenterX + centerLineLength * Math.cos(angleRad);
     let lineEndY = rectCenterY + centerLineLength * Math.sin(angleRad);
 
-    const line = this.drawLineWithinArea(output, lineStartX, lineStartY, lineEndX, lineEndY, color, stroke);
-    if(output === "dom") {
-      (slantLines as Element).appendChild(line as Element);
-    } else {
-      (slantLines as string) += (line as string);
-    }
+    const line = this.drawLineWithinArea(lineStartX, lineStartY, lineEndX, lineEndY, color, stroke);
+    slantLines += line;
     let distance = slantSpacing;
     for (let i = 0; i < slantReps; i++) {
       // draw lines to the left and right of center line
-      let linesLeft = this.createParallelLine(output, lineStartX, lineStartY, lineEndX, lineEndY, distance, color, stroke, this.#config.slantLineMinLength);
-      let linesRight = this.createParallelLine(output, lineStartX, lineStartY, lineEndX, lineEndY, distance * -1, color, stroke, this.#config.slantLineMinLength);
-      if(output === "dom") {
-        if(linesLeft){
-          (slantLines as Element).appendChild(linesLeft as Element);
-        }
-        if(linesRight){
-          (slantLines as Element).appendChild(linesRight as Element);
-        }
-      } else {
-        (slantLines as string) += (linesLeft as string);
-        (slantLines as string) += (linesRight as string);
-      }
+      let linesLeft = this.createParallelLine(
+        lineStartX,
+        lineStartY,
+        lineEndX,
+        lineEndY,
+        distance,
+        color,
+        stroke,
+        this.#config.slantLineMinLength
+      );
+      let linesRight = this.createParallelLine(
+        lineStartX,
+        lineStartY,
+        lineEndX,
+        lineEndY,
+        distance * -1,
+        color,
+        stroke,
+        this.#config.slantLineMinLength
+      );
+      slantLines += linesLeft;
+      slantLines += linesRight;
       distance += slantSpacing;
     }
 
-    if(output === "dom") {
-      (gridParent as Element).appendChild(slantLines as Element);
-    } else {
-      (gridParent as string) += (slantLines as string);
-    }
-    if(output === "string"){
-      gridParent += "</g>";
-    }
+    gridParent += slantLines;
+    gridParent += "</g>";
     return gridParent;
   }
 
@@ -182,7 +176,6 @@ export class CalligraphyAreaPage extends GridMaker {
   }
 
   private drawLineWithinArea(
-    output: OutputType,
     x1: number,
     y1: number,
     x2: number,
@@ -190,9 +183,9 @@ export class CalligraphyAreaPage extends GridMaker {
     color: string,
     stroke: number,
     maxLength?: number
-  ): Element | string {
+  ): string {
     const intersectionPoints = this.calculateIntersectionPoints(x1, y1, x2, y2); // Corrected parameter order
-    let line;
+    let line = "";
 
     if (intersectionPoints.length > 0) {
       // Trim the line to start and end at the intersection points
@@ -213,20 +206,27 @@ export class CalligraphyAreaPage extends GridMaker {
       let lineColor = color;
       if (maxLength) {
         if (trimmedLineLength > maxLength) {
-          line = this.addLine(output, trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
+          line = this.addLine(trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
         }
       } else {
-        line = this.addLine(output, trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
+        line = this.addLine(trimmedX1, trimmedY1, trimmedX2, trimmedY2, lineColor, stroke);
       }
     }
-    if(line){
-      return line;
-    }
+    return line;
   }
 
-  private createParallelLine(output: OutputType, x1: number, y1: number, x2: number, y2: number, distance: number, color: string, stroke: number, maxLength: number|undefined): Element | string {
+  private createParallelLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    distance: number,
+    color: string,
+    stroke: number,
+    maxLength: number | undefined
+  ): string {
     const { x1: newX1, y1: newY1, x2: newX2, y2: newY2 } = this.generateParallelCoordinates(x1, y1, x2, y2, distance);
-    return this.drawLineWithinArea(output, newX1, newY1, newX2, newY2, color, stroke, maxLength);
+    return this.drawLineWithinArea(newX1, newY1, newX2, newY2, color, stroke, maxLength);
   }
 
   private calculateIntersectionPoints(lineX1: number, lineY1: number, lineX2: number, lineY2: number): Point[] {
@@ -237,7 +237,8 @@ export class CalligraphyAreaPage extends GridMaker {
 
     const slope = (lineY2 - lineY1) / (lineX2 - lineX1);
     const yIntercept = lineY1 - slope * lineX1;
-    const isInsideRectangle = (x: number, y: number) => x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight;
+    const isInsideRectangle = (x: number, y: number) =>
+      x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight;
     const topIntersectionX = (rectY - yIntercept) / slope;
     const bottomIntersectionX = (rectY + rectHeight - yIntercept) / slope;
     const leftIntersectionY = slope * rectX + yIntercept;

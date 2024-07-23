@@ -1,4 +1,11 @@
-import {GridMaker, type GridPageBasicOptions, type GridPageExtendedOptions, type GridPageTechnicalOptions, type OutputType, type RequiredFields} from "./GridMaker";
+import {
+  GridMaker,
+  type GridPageBasicOptions,
+  type GridPageExtendedOptions,
+  type GridPageTechnicalOptions,
+  type OutputType,
+  type RequiredFields,
+} from "./GridMaker";
 
 export interface DotGridPageBasicOptions extends GridPageBasicOptions {
   lineColor?: string;
@@ -44,18 +51,18 @@ export class DotGridPage extends GridMaker {
 
   makeSVG(): SVGElement {
     const svg = super.makeSVG();
-    svg.appendChild(this.addDotGrid("dom") as Element);
+    svg.innerHTML += this.addDotGrid();
     return svg;
   }
 
   makeSVGString(): string {
     let svgString = super.makeSVGString(false);
-    svgString += this.addDotGrid("string");
+    svgString += this.addDotGrid();
     svgString += "</svg>";
     return svgString;
   }
 
-  private addDotGrid(output: OutputType): Element | string {
+  private addDotGrid(): string {
     const cellSize = this.#config.cellSize!;
     const horizontalReps = this.gridHeight / cellSize;
     const horizontalRemainder = this.gridHeight % cellSize;
@@ -69,33 +76,24 @@ export class DotGridPage extends GridMaker {
       horizontalIntersections.push(yLineStart);
       yLineStart += cellSize;
     }
-    
+
     let xLineStart = this.marginLeft + verticalRemainder / 2;
     for (let i = 0; i <= verticalReps; i++) {
       verticalIntersections.push(xLineStart);
       xLineStart += cellSize;
     }
 
-    let gridParent = this.createGroup(output, "grid", "calli-grid", this.maskId ? this.maskId : undefined);
-    
-    for(const horizontalPoint of horizontalIntersections) {
-      for(const verticalPoint of verticalIntersections) {
-        if (output === "dom") {
-          const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          dot.setAttribute("cx", this.formatCoordinate(verticalPoint).toString());
-          dot.setAttribute("cy", this.formatCoordinate(horizontalPoint).toString());
-          dot.setAttribute("r", (this.#config.dotSize! / 2).toString());
-          dot.setAttribute("fill", this.#config.lineColor!);
-          (gridParent as Element).appendChild((dot as Element));
-        } else {
-          const dot = `<circle cx="${this.formatCoordinate(verticalPoint)}" cy="${this.formatCoordinate(horizontalPoint)}" r="${(this.#config.dotSize! / 2)}" fill="${this.#config.lineColor!}" />`;
-          gridParent += dot;
-        }
+    let gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
+
+    for (const horizontalPoint of horizontalIntersections) {
+      for (const verticalPoint of verticalIntersections) {
+        const dot = `<circle cx="${this.formatCoordinate(verticalPoint)}" cy="${this.formatCoordinate(
+          horizontalPoint
+        )}" r="${this.#config.dotSize! / 2}" fill="${this.#config.lineColor!}" />`;
+        gridParent += dot;
       }
     }
-    if(output === "string") {
-      gridParent += "</g>";
-    }
+    gridParent += "</g>";
     return gridParent;
   }
 

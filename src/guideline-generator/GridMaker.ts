@@ -43,7 +43,7 @@ export class GridMaker {
   readonly #fontColor: string = "#808080";
   readonly #copyRightText: string = "© grid code.halfapx.com/guideline-generator/";
   readonly #addCopyright: boolean = true;
-  #maskId: string = '';
+  #maskId: string = "";
 
   get maskId(): string {
     return this.#maskId;
@@ -55,10 +55,6 @@ export class GridMaker {
 
   get defaultValues(): RequiredFields<GridPageConfig> {
     return this.#defaults;
-  }
-
-  get svgElement(): SVGElement | undefined | string {
-    return this.#svg;
   }
 
   get width(): number {
@@ -141,67 +137,46 @@ export class GridMaker {
     this.#config = { ...this.#defaults, ...options };
   }
 
-  init(): void {}
-
   makeSVG(): SVGElement {
     const svg = this.createDocument("dom") as SVGElement;
-    if (this.#addCopyright) {
-      svg.appendChild(this.addCopyright("dom") as Element);
-    }
-    if (this.#config.addTitle) {
-      svg.appendChild(this.addTitle("dom") as Element);
-    }
-    if (this.#config.addAreaBox) {
-      svg.appendChild(this.addMask("dom") as Element);
-      svg.appendChild(this.addRectangle("dom", "transparent", this.#config.areaStrokeColor) as Element);
-    }
+    svg.innerHTML = this.addSVGContent();
     return svg;
   }
 
-  makeSVGString(addCloseTag:boolean = true): string {
-    let svgString = this.createDocument("string");
-    if (this.#addCopyright) {
-      svgString += this.addCopyright("string") as string;
-    }
-    if (this.#config.addTitle) {
-      svgString += this.addTitle("string") as string;
-    }
-    if (this.#config.addAreaBox) {
-      svgString += this.addMask("string") as string;
-      svgString += this.addRectangle("string", "transparent", this.#config.areaStrokeColor) as string;
-    }
-    if(addCloseTag) {
+  makeSVGString(addCloseTag: boolean = true): string {
+    let svgString = this.createDocument("string") as string;
+    svgString += this.addSVGContent();
+    if (addCloseTag) {
       svgString += "</svg>";
     }
-    return svgString as string;
+    return svgString;
   }
 
-  createGroup(output: OutputType, className?: string, idName?: string, maskId?: string): Element | string {
-    if (output === "dom") {
-      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      if (className) {
-        group.setAttribute("class", className);
-      }
-      if (idName) {
-        group.setAttribute("id", idName);
-      }
-      if (maskId) {
-        group.setAttribute("mask", `url(#${maskId})`);
-      }
-      return group;
-    } else {
-      const groupString = /*html*/ `
+  addSVGContent(): string {
+    let string = "";
+    if (this.#addCopyright) {
+      string += this.addCopyright();
+    }
+    if (this.#config.addTitle) {
+      string += this.addTitle();
+    }
+    if (this.#config.addAreaBox) {
+      string += this.addMask();
+      string += this.addRectangle("transparent", this.#config.areaStrokeColor);
+    }
+    return string;
+  }
+
+  createGroup(className?: string, idName?: string, maskId?: string): string {
+    return /*html*/ `
         <g 
           ${className ? `class="${className}"` : ""} 
           ${idName ? `id="${idName}"` : ""} 
           ${maskId ? `mask="url(#${maskId})"` : ""}
         >`;
-      return groupString;
-    }
   }
 
   addLine(
-    output: OutputType,
     x1: number,
     y1: number,
     x2: number,
@@ -210,28 +185,12 @@ export class GridMaker {
     stroke: number,
     srokeDashArray?: string,
     strokeLineCap?: "round" | "square" | "butt"
-  ): Element | string {
-    const formatX1 = this.formatCoordinate(x1).toString();
-    const formatX2 = this.formatCoordinate(x2).toString();
-    const formatY1 = this.formatCoordinate(y1).toString();
-    const formatY2 = this.formatCoordinate(y2).toString();
-    if (output === "dom") {
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", formatX1);
-      line.setAttribute("y1", formatY1);
-      line.setAttribute("x2", formatX2);
-      line.setAttribute("y2", formatY2);
-      line.setAttribute("stroke", color);
-      line.setAttribute("stroke-width", stroke.toString());
-      if (srokeDashArray) {
-        line.setAttribute("stroke-dasharray", srokeDashArray);
-      }
-      if (strokeLineCap) {
-        line.setAttribute("stroke-linecap", strokeLineCap);
-      }
-      return line;
-    } else {
-      return /*html*/ `
+  ): string {
+    const formatX1 = this.formatCoordinate(x1);
+    const formatX2 = this.formatCoordinate(x2);
+    const formatY1 = this.formatCoordinate(y1);
+    const formatY2 = this.formatCoordinate(y2);
+    return /*html*/ `
         <line 
           x1="${formatX1}" 
           y1="${formatY1}" 
@@ -243,18 +202,16 @@ export class GridMaker {
           ${strokeLineCap ? `stroke-linecap="${strokeLineCap}"` : ""}
         />
       `;
-    }
   }
 
   drawSolidLine(
-    output: OutputType,
     orientation: "horizontal" | "vertical",
     gridPos: number,
     lineStart: number,
     lineEnd: number,
     color: string,
     stroke: number
-  ): Element | string {
+  ): string {
     let x1 = 0,
       x2 = 0,
       y1 = 0,
@@ -270,49 +227,50 @@ export class GridMaker {
       x1 = x2 = gridPos;
     }
 
-    const line = this.addLine(output, x1, y1, x2, y2, color, stroke);
+    const line = this.addLine(x1, y1, x2, y2, color, stroke);
     return line;
   }
 
   drawDashedLine(
-    output: OutputType,
     orientation: "horizontal" | "vertical",
     gridPos: number,
     lineStart: number,
     lineEnd: number,
     dotRadius: number,
     dotColor: string
-  ): Element | string {
+  ): string {
     const dotSize = dotRadius * 2;
     const dotGap = dotRadius * 4;
-    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-    if(orientation === "horizontal") {
+    let x1 = 0,
+      x2 = 0,
+      y1 = 0,
+      y2 = 0;
+    if (orientation === "horizontal") {
       x1 = lineStart;
       x2 = lineEnd;
       y1 = y2 = gridPos;
     }
-    if(orientation === "vertical") {
+    if (orientation === "vertical") {
       y1 = lineStart;
       y2 = lineEnd;
       x1 = x2 = gridPos;
     }
- 
-    return this.addLine(output, x1, y1, x2, y2, dotColor, dotSize, `0,${dotGap.toString()}`, "round");
+
+    return this.addLine(x1, y1, x2, y2, dotColor, dotSize, `0,${dotGap.toString()}`, "round");
   }
 
   drawSlantLine(
-    output: OutputType,
     lineHeight: number,
     angle: number,
     xStart: number,
     yStart: number,
     color: string,
     stroke: number
-  ): Element | string {
+  ): string {
     const xEnd = xStart + lineHeight / Math.tan((angle * Math.PI) / 180);
     const yEnd = yStart - lineHeight;
 
-    const line = this.addLine(output, xStart, yStart, xEnd, yEnd, color, stroke);
+    const line = this.addLine(xStart, yStart, xEnd, yEnd, color, stroke);
 
     return line;
   }
@@ -326,20 +284,20 @@ export class GridMaker {
     return `${baseId}-${uniqueIdSuffix}`;
   }
 
-  private addTitle(output: OutputType): Element | string {
+  private addTitle(): string {
     const titleFontSize = this.#config.textFontSize!;
     const titleTopPos = titleFontSize * this.#config.textLineHeight! + this.#config.documentMarginTop!;
     const titleLeftPos = this.#config.documentWidth! - this.#config.documentMarginRight!;
 
-    return this.addText(output, this.prettyName, titleFontSize, "end", titleTopPos, titleLeftPos);
+    return this.addText(this.prettyName, titleFontSize, "end", titleTopPos, titleLeftPos);
   }
 
-  private addCopyright(output: OutputType): Element | string {
+  private addCopyright(): string {
     const fontSize = this.#config.textFontSize! * this.#copyrightSizeFactor;
     const topPos = this.height - this.#config.documentMarginBottom!;
     const leftPos = this.#config.documentMarginLeft!;
 
-    return this.addText(output, this.#copyRightText, fontSize, "start", topPos, leftPos);
+    return this.addText(this.#copyRightText, fontSize, "start", topPos, leftPos);
   }
 
   protected generateGridName(type: "pretty" | "file"): string {
@@ -365,38 +323,18 @@ export class GridMaker {
     }
   }
 
-  private addMask(output: OutputType): Element | string {
+  private addMask(): string {
     const maskId = this.generateUniqueId("mask");
     this.maskId = maskId;
-    if (output === "dom") {
-      const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-      mask.setAttribute("id", maskId);
-      const rectangle = this.addRectangle("dom", "white", "black");
-      mask.appendChild(rectangle as Element);
-      return mask;
-    } else {
-      return /*html*/ `
+    return /*html*/ `
         <mask id="${maskId}">
-          ${this.addRectangle("string", "white", "black")}
+          ${this.addRectangle("white", "black")}
         </mask>
       `;
-    }
   }
 
-  private addRectangle(output: OutputType, fillColor: string, strokeColor: string): Element | string {
-    if (output === "dom") {
-      const rectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rectangle.setAttribute("x", this.marginLeft.toString());
-      rectangle.setAttribute("y", this.marginTop.toString());
-      rectangle.setAttribute("width", this.gridWidth.toString());
-      rectangle.setAttribute("height", this.gridHeight.toString());
-      rectangle.setAttribute("rx", this.#config.areaBorderRadius!.toString());
-      rectangle.setAttribute("fill", fillColor);
-      rectangle.setAttribute("stroke-width", this.#config.areaStrokeWidth!.toString());
-      rectangle.setAttribute("stroke", strokeColor);
-      return rectangle;
-    } else {
-      return /*html*/ `
+  private addRectangle(fillColor: string, strokeColor: string): string {
+    return /*html*/ `
         <rect
           x="${this.marginLeft}"
           y="${this.marginTop}"
@@ -408,29 +346,16 @@ export class GridMaker {
           stroke="${strokeColor}"
         />
       `;
-    }
   }
 
   private addText(
-    output: OutputType,
     text: string,
     fontSize: number,
     textAnchor: "start" | "end",
     topPos: number,
     leftPos: number
-  ): Element | string {
-    if (output === "dom") {
-      const textString = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      textString.textContent = text;
-      textString.setAttribute("x", leftPos.toString());
-      textString.setAttribute("y", topPos.toString());
-      textString.setAttribute("text-anchor", textAnchor);
-      textString.setAttribute("font-size", fontSize.toString());
-      textString.setAttribute("fill", this.#fontColor);
-      textString.setAttribute("font-family", "Arial, sans-serif");
-      return textString;
-    } else {
-      return /*html*/ `
+  ): string {
+    return /*html*/ `
           <text
             x="${leftPos}"
             y="${topPos}"
@@ -442,6 +367,5 @@ export class GridMaker {
             ${text}
           </text>
         `;
-    }
   }
 }

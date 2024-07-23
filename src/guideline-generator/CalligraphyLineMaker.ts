@@ -98,20 +98,20 @@ export class CalligraphyLinePage extends GridMaker {
   }
 
   makeSVG(): SVGElement {
-    const svg = super.makeSVG();
-    svg.appendChild(this.addCalligraphyLines("dom") as Element);
+    let svg = super.makeSVG();
+    svg.innerHTML += this.addCalligraphyLines();
     return svg;
   }
 
   makeSVGString(): string {
     let svgString = super.makeSVGString(false);
-    svgString += this.addCalligraphyLines("string");
+    svgString += this.addCalligraphyLines();
     svgString += "</svg>";
     return svgString;
   }
 
-  private addCalligraphyLines(output: OutputType): Element | string {
-    let gridParent = this.createGroup(output, "grid", "calli-grid", this.maskId ? this.maskId : undefined);
+  private addCalligraphyLines(): string {
+    let gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
     const buffer = this.#config.addAreaBox ? this.#config.areaBlockBuffer : 0;
     const height = this.gridHeight - buffer * 2;
     const lineReps = Math.floor(height / this.lineHeight);
@@ -119,69 +119,40 @@ export class CalligraphyLinePage extends GridMaker {
     let yLineStart = this.marginTop + buffer;
 
     for (let i = 0; i < lineReps; i++) {
-      let line = this.addCalligraphyLine(output, yLineStart, this.marginLeft, this.width - this.marginRight);
-      if (output === "dom") {
-        (gridParent as Element).appendChild(line as Element);
-      } else {
-        (gridParent as string) += line as string;
-      }
+      let line = this.addCalligraphyLine(yLineStart, this.marginLeft, this.width - this.marginRight);
+      gridParent += line;
       yLineStart += this.lineHeight + lineGap;
     }
 
-    if (output === "string") {
-      gridParent += "</g>";
-    }
+    gridParent += "</g>";
 
     return gridParent;
   }
 
-  private addCalligraphyLine(
-    output: OutputType,
-    gridPos: number,
-    lineStart: number,
-    lineEnd: number
-  ): Element | string {
+  private addCalligraphyLine(gridPos: number, lineStart: number, lineEnd: number): Element | string {
     const { ascender: normalizedAscender, base: normalizedBase, descender: normalizedDescender } = this.normalizedRatio;
     const gridPosAscenderLine = gridPos;
     const gridPosXHeightLine = gridPosAscenderLine + this.xHeight * normalizedAscender;
     const gridPosBaseLine = gridPosXHeightLine + this.xHeight * normalizedBase;
     const gridPosDescenderLine = gridPosBaseLine + this.xHeight * normalizedDescender;
 
-    let lineGroup = this.createGroup(output, "line");
-    const ascender = this.addLineSection(output, "ascender", gridPosAscenderLine, lineStart, lineEnd, "down");
-    if (output === "dom") {
-      (lineGroup as Element).appendChild(ascender as Element);
-    } else {
-      (lineGroup as string) += ascender as string;
-    }
-    const base = this.addLineSection(output, "base", gridPosBaseLine, lineStart, lineEnd, "up");
-    if (output === "dom") {
-      (lineGroup as Element).appendChild(base as Element);
-    } else {
-      (lineGroup as string) += base as string;
-    }
-    const descender = this.addLineSection(output, "descender", gridPosDescenderLine, lineStart, lineEnd, "up");
-    if (output === "dom") {
-      (lineGroup as Element).appendChild(descender as Element);
-    } else {
-      (lineGroup as string) += descender as string;
-    }
+    let lineGroup = this.createGroup("line");
+    const ascender = this.addLineSection("ascender", gridPosAscenderLine, lineStart, lineEnd, "down");
+    lineGroup += ascender;
+    const base = this.addLineSection("base", gridPosBaseLine, lineStart, lineEnd, "up");
+    lineGroup += base;
+    const descender = this.addLineSection("descender", gridPosDescenderLine, lineStart, lineEnd, "up");
+    lineGroup += descender;
     if (this.#config.slantAngle > 0) {
-      const slantLines = this.addSlantLines(output, gridPosDescenderLine, lineStart);
-      if (output === "dom") {
-        (lineGroup as Element).appendChild(slantLines as Element);
-      } else {
-        (lineGroup as string) += slantLines as string;
-      }
+      const slantLines = this.addSlantLines(gridPosDescenderLine, lineStart);
+      lineGroup += slantLines;
     }
-    if (output === "string") {
-      lineGroup += "</g>";
-    }
+    lineGroup += "</g>";
     return lineGroup;
   }
 
-  private addSlantLines(output: OutputType, gridPos: number, lineStart: number): Element | string {
-    let slantGroup = this.createGroup(output, "slant-lines");
+  private addSlantLines(gridPos: number, lineStart: number): string {
+    let slantGroup = this.createGroup("slant-lines");
     const reps = this.#config.slantLinesPerLine;
     const endPosXFinalLine = this.gridWidth;
     const startPosXFinalLine = endPosXFinalLine - this.lineHeight / Math.tan((this.#config.slantAngle * Math.PI) / 180);
@@ -190,7 +161,6 @@ export class CalligraphyLinePage extends GridMaker {
     let startPosX = lineStart;
     for (let i = 0; i < reps; i++) {
       const slantLine = this.drawSlantLine(
-        output,
         this.lineHeight,
         this.#config.slantAngle,
         startPosX,
@@ -198,21 +168,14 @@ export class CalligraphyLinePage extends GridMaker {
         this.#config.lineColor,
         this.#config.gridStrokeWidth
       );
-      if (output === "dom") {
-        (slantGroup as Element).appendChild(slantLine as Element);
-      } else {
-        (slantGroup as string) += slantLine as string;
-      }
+      slantGroup += slantLine;
       startPosX += spaceBetweenRepetitions;
     }
-    if (output === "string") {
-      slantGroup += "</g>";
-    }
+    slantGroup += "</g>";
     return slantGroup;
   }
 
   private addLineSection(
-    output: OutputType,
     section: "ascender" | "base" | "descender",
     gridPosLine: number,
     lineStart: number,
@@ -224,22 +187,17 @@ export class CalligraphyLinePage extends GridMaker {
     const ratio = ratios[section];
     const color = this.#config.lineColor;
     const stroke = this.#config.gridStrokeWidth;
-    let group = this.createGroup(output, section);
+    let group = this.createGroup(section);
     const gridPosXHeightLine = gridPosLine - this.xHeight;
     const gridPos = section !== "base" ? gridPosLine : gridPosXHeightLine;
-    const line1 = this.drawSolidLine(output, "horizontal", gridPos, lineStart, lineEnd, color, stroke);
-    if (output === "dom") {
-      (group as Element).appendChild(line1 as Element);
-    } else {
-      (group as string) += line1 as string;
-    }
+    const line1 = this.drawSolidLine("horizontal", gridPos, lineStart, lineEnd, color, stroke);
+    group += line1;
     /**
      * the base section includes the x-Height Line (first solid line, and then additionally a thicker baseline)
      * and optionally a vertical xHeight Indicator
      */
     if (section === "base") {
       const baseLine = this.drawSolidLine(
-        output,
         "horizontal",
         gridPosLine,
         lineStart,
@@ -247,14 +205,9 @@ export class CalligraphyLinePage extends GridMaker {
         color,
         this.#config.gridBaseLineStrokeWidth
       );
-      if (output === "dom") {
-        (group as Element).appendChild(baseLine as Element);
-      } else {
-        (group as string) += baseLine as string;
-      }
+      group += baseLine;
       if (this.#config.showXHeightIndicator) {
         const xHeightIndicator = this.drawSolidLine(
-          output,
           "vertical",
           lineStart + this.#config.xHeightIndicatorStrokeWidth * 0.5,
           gridPosXHeightLine,
@@ -262,11 +215,7 @@ export class CalligraphyLinePage extends GridMaker {
           color,
           this.#config.xHeightIndicatorStrokeWidth
         );
-        if (output === "dom") {
-          (group as Element).appendChild(xHeightIndicator as Element);
-        } else {
-          (group as string) += xHeightIndicator as string;
-        }
+        group += xHeightIndicator;
       }
     }
     if (this.#config.addDividerLines) {
@@ -274,17 +223,11 @@ export class CalligraphyLinePage extends GridMaker {
         const gap = dividerDrawingDirection == "down" ? dividerGap : dividerGap * -1;
         const gridPos = gridPosLine + i * gap;
         const dotRadius = this.#config.gridStrokeWidth;
-        const divider = this.drawDashedLine(output, "horizontal", gridPos, lineStart, lineEnd, dotRadius, color);
-        if (output === "dom") {
-          (group as Element).appendChild(divider as Element);
-        } else {
-          (group as string) += divider as string;
-        }
+        const divider = this.drawDashedLine("horizontal", gridPos, lineStart, lineEnd, dotRadius, color);
+        group += divider;
       }
     }
-    if (output === "string") {
-      group += "</g>";
-    }
+    group += "</g>";
     return group;
   }
 

@@ -50,19 +50,19 @@ export class GraphGridPage extends GridMaker {
   }
 
   makeSVG(): SVGElement {
-    const svg = super.makeSVG();
-    svg.appendChild(this.addGraphGrid("dom") as Element);
+    let svg = super.makeSVG();
+    svg.innerHTML += this.addGraphGrid();
     return svg;
   }
 
   makeSVGString(): string {
     let svgString = super.makeSVGString(false);
-    svgString += this.addGraphGrid("string");
+    svgString += this.addGraphGrid();
     svgString += "</svg>";
     return svgString;
   }
 
-  private addGraphGrid(output: OutputType): Element | string {
+  private addGraphGrid(): string {
     const cellSize = this.#config.cellSize!;
     const xEnd = this.width - this.marginRight;
     const yEnd = this.height - this.marginBottom;
@@ -71,12 +71,11 @@ export class GraphGridPage extends GridMaker {
     const verticalReps = this.gridWidth / cellSize;
     const verticalRemainder = this.gridWidth % cellSize;
 
-    let gridParent = this.createGroup(output, "grid", "calli-grid", this.maskId ? this.maskId : undefined);
+    let gridParent = this.createGroup("grid", "calli-grid", this.maskId ? this.maskId : undefined);
 
     let yLineStart = this.marginTop + horizontalRemainder / 2;
     for (let i = 0; i <= horizontalReps; i++) {
       const line = this.drawSolidLine(
-        output,
         "horizontal",
         yLineStart,
         this.marginLeft,
@@ -85,17 +84,12 @@ export class GraphGridPage extends GridMaker {
         this.#config.gridStrokeWidth
       );
       yLineStart += cellSize;
-      if (output === "dom") {
-        (gridParent as Element).appendChild(line as Element);
-      } else {
-        (gridParent as string) += (line as string);
-      }
+      gridParent += line;
     }
 
     let xLineStart = this.marginLeft + verticalRemainder / 2;
     for (let i = 0; i <= verticalReps; i++) {
       const line = this.drawSolidLine(
-        output,
         "vertical",
         xLineStart,
         this.marginTop,
@@ -104,16 +98,10 @@ export class GraphGridPage extends GridMaker {
         this.#config.gridStrokeWidth
       );
       xLineStart += cellSize;
-      if (output === "dom") {
-        (gridParent as Element).appendChild(line as Element);
-      } else {
-        (gridParent as string) += (line as string);
-      }
+      gridParent += line;
     }
 
-    if(output === "string") {
-      gridParent += "</g>";
-    }
+    gridParent += "</g>";
 
     return gridParent;
   }
