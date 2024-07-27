@@ -1,19 +1,15 @@
 ---
-import type {GridConfig, GridType} from "../types/shared";
-import { CalligraphyAreaPage} from "../guideline-generator/CalligraphyAreaMaker";
-import { CalligraphyLinePage} from "../guideline-generator/CalligraphyLineMaker";
-import { DotGridPage} from "../guideline-generator/DotGridMaker";
-import { GraphGridPage} from "../guideline-generator/GraphGridMaker";
-
+import type { GridConfig, GridType } from "../types/shared";
+import { CalligraphyAreaPage, CalligraphyLinePage, DotGridPage, GraphGridPage } from "calligraphy-grids";
 interface Props {
-  gridType: GridType,
-  gridConfig: GridConfig,
+  gridType: GridType;
+  gridConfig: GridConfig;
 }
 
 const { gridType, gridConfig } = Astro.props;
 
-let makeGrid = (gridType:GridType) => {
-  switch(gridType) {
+let makeGrid = (gridType: GridType) => {
+  switch (gridType) {
     case "line":
       return new CalligraphyLinePage(gridConfig);
     case "area":
@@ -26,4 +22,5 @@ let makeGrid = (gridType:GridType) => {
 };
 const svg = makeGrid(gridType).makeSVGString();
 ---
-<div set:html={svg}></div>
+
+<div set:html={svg} />
