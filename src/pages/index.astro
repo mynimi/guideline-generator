@@ -1,46 +1,118 @@
 ---
 import GridTypeTabs from "../components/form/GridTypeTabs.astro";
 import Base from "../layouts/Base.astro";
-
-const svgId = "preview";
 ---
 
 <Base>
-  <div class="grid">
-    <div class="config">
-      <div class="config__intro">
-        <h1 class="config__title">Guideline Maker</h1>
+  <div class="page">
+    <div class="page__settings">
+      <div class="intro">
+        <h1>Guideline Maker</h1>
         <p>
           A super-flexible generator for (Calligraphy) Writing Paper. It also can make graph and dot grid paper, in PDF
           and SVG format and can be printed from within the browser.
         </p>
         <p>Play with the options and see it change in real time.</p>
       </div>
-      <GridTypeTabs svgId={svgId} />
-      <div class="config__outro">
+      <GridTypeTabs />
+      <div class="outro">
         <h2>Export</h2>
-        <p>You can either print from this site directly using the Print Command (make sure document and page size match), or use one of the two buttons below to download.</p>
+        <p>
+          You can either print from this site directly using the Print Command (make sure document and page size match),
+          or use one of the two buttons below to download.
+        </p>
         <p>Please note, that you are free to use these grids, but don't remove the Copyright information.</p>
         <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
-        <div class="button-group">
+        <div>
           <button data-save-svg>Download SVG</button>
           <button data-download-pdf>Download PDF</button>
         </div>
       </div>
     </div>
-    <div class="grid__preview">
+    <div class="page__preview">
       <div
         role="img"
         aria-label="Preview of the generated grid"
         aria-live="polite"
-        class="svg-wrapper"
-        id={svgId}
+        class="preview"
         data-svg-preview
       >
       </div>
     </div>
   </div>
 </Base>
+
+<style lang="scss" is:global>
+  h1 {
+    font-size: 3em;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    grid-template-areas: "settings preview";
+    height: 100dvh;
+    overflow: hidden;
+
+    @media screen and (max-width: 600px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: min-content 1fr;
+      grid-template-areas: "settings" "preview";
+    }
+  }
+
+  .page__settings {
+    grid-area: settings;
+    padding: 1rem;
+    overflow: auto;
+    resize: horizontal;
+    min-width: 40rem;
+    max-width: 70vw;
+
+    @media screen and (max-width: 600px) {
+      min-width: 100%;
+      max-width: 100%;
+      min-height: 30vh;
+      max-height: 70vh;
+      resize: vertical;
+    }
+  }
+
+  .page__preview {
+    grid-area: preview;
+    position: relative;
+    background-color: var(--c-bg-tertiary);
+  }
+
+  .preview {
+    --buffer: 2rem;
+    height: calc(100% - var(--buffer) * 2);
+    width: calc(100% - var(--buffer) * 2);
+    position: absolute;
+    top: var(--buffer);
+    left: var(--buffer);
+    align-content: center;
+    justify-content: center;
+    display: flex;
+
+    svg {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      background: white;
+    }
+  }
+
+  .intro {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--c-on-bg);
+    margin-bottom: 2.5rem;
+  }
+</style>
+
 <script>
   import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
   import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLineMaker";

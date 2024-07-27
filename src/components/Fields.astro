@@ -384,8 +384,8 @@ const isPartOfGrid = (option:ConfigField) => {
 }
 ---
 {sections.map(section => (
-  <div>
-    <h2>{section.title}</h2>
+  <details>
+    <summary>{section.title}</summary>
     {options.filter(option => option.section === section.id).map(option => (
       <Fragment>
         {(isPartOfGrid(option)) && (
@@ -403,5 +403,5 @@ const isPartOfGrid = (option:ConfigField) => {
         )}
       </Fragment>
     ))}
-  </div>
+  </details>
 ))}
