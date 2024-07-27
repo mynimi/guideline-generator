@@ -117,13 +117,10 @@ import Base from "../layouts/Base.astro";
 </style>
 
 <script>
-  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
-  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLineMaker";
-  import { DotGridPage } from "../guideline-generator/DotGridMaker";
-  import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
   import { $currentGridType, $gridConfig } from "../../store";
   import { jsPDF } from "jspdf";
   import { svg2pdf } from "svg2pdf.js";
+  import { CalligraphyAreaPage, CalligraphyLinePage, DotGridPage, GraphGridPage } from "calligraphy-grids";
 
   let gridInstance = null;
 
