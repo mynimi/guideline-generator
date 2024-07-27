@@ -1,20 +1,26 @@
 ---
+import ColorPicker from "./ColorPicker.astro";
+import Input from "./Input.astro";
+import Switch from "./Switch.astro";
+
 export type InputType = "number" | "color" | "checkbox";
 type FieldLevel = "minimal" | "balanced" | "maximal";
 
-export interface Props {
+export interface BaseInput {
   label: string;
-  helperText?: string;
   id: string;
   inputType: InputType;
   defaultValue: number | string | boolean;
-  level: FieldLevel;
+  helperText?: string;
+}
+
+export interface Props extends BaseInput {
   min?: number;
   step?: number;
   max?: number;
 }
 
-const { label, helperText, id, inputType, defaultValue, level, min, step, max } = Astro.props;
+const { label, helperText, id, inputType, defaultValue, min, step, max } = Astro.props;
 
 const colorOptions = [
   { value: "#A4DDED", label: "non-photo blue" },
@@ -24,78 +30,42 @@ const colorOptions = [
   { value: "custom", label: "Custom" },
 ];
 ---
+
 <div>
   {
     inputType === "checkbox" && (
-      <Fragment>
-        <label class:list={["field", `field--${inputType}`]}>
-          <input
-            data-checkbox
-            type={inputType}
-            id={id}
-            name={id}
-            checked={defaultValue}
-          />
-          <span>{label}</span>
-        </label>
-        {helperText && <p>{helperText}</p>}
-      </Fragment>
+      <Switch
+        label={label}
+        id={id}
+        defaultValue={defaultValue}
+        helperText={helperText}
+      />
     )
   }
   {
     inputType === "color" && (
-      <label class="field field--color">
-        <fieldset class="color-group">
-          <legend>{label}</legend>
-          {colorOptions.map((option) => (
-            <label>
-              <input
-                data-color
-                type="radio"
-                name={id}
-                value={option.value}
-                checked={option.value === defaultValue}
-              />
-              <span style={`--_c: ${option.value !== 'custom' ? option.value : 'red'};`}>
-                {option.label !== "Custom" ? (
-                  option.label
-                ) : (
-                  <Fragment>
-                    Custom (Enter Hexcode)
-                    <input
-                      data-custom-color
-                      type="text"
-                      name={`${id}-custom-color`}
-                      aria-label="Add Custom Color (in Hex Format)"
-                      pattern="^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$"
-                      maxlength="7"
-                      value="#ff0000"
-                    />
-                  </Fragment>
-                )}
-              </span>
-            </label>
-          ))}
-        </fieldset>
-      </label>
+      <Fragment>
+        <ColorPicker 
+          label={label}
+          id={id}
+          defaultValue={defaultValue}
+          helperText={helperText}
+        ></ColorPicker>
+      </Fragment>
     )
   }
   {
-    inputType === "number" && (
-      <label class:list={["field", `field--${inputType}`]}>
-        <span>{label}</span>
-        <input
-          data-field
-          type={inputType}
-          id={id}
-          name={id}
-          value={defaultValue}
-          min={min}
-          step={step}
-          max={max}
-        />
-        {helperText && <p>{helperText}</p>}
-      </label>
+    inputType !== "checkbox" && inputType !== "color" && (
+      <Input
+        inputType={inputType}
+        label={label}
+        id={id}
+        defaultValue={defaultValue}
+        helperText={helperText}
+        min={min}
+        step={step}
+        max={max}
+      />
     )
   }
 </div>
@@ -107,16 +77,13 @@ const colorOptions = [
 </style>
 
 <script>
-  import {$gridConfig} from "../../store";
+  import { $gridConfig } from "../../store";
 
-  const checkboxes = document.querySelectorAll("[data-checkbox]");
   const colorRadios = document.querySelectorAll("[data-color]");
-  const numberFields = document.querySelectorAll("[data-field]");
-  const currentConfig = $gridConfig;
 
   const updateValue = (id, value) => {
-    const currentConfig = {...$gridConfig.get()};
-    if(currentConfig[id]){
+    const currentConfig = { ...$gridConfig.get() };
+    if (currentConfig[id]) {
       currentConfig[id] = value;
     } else {
       currentConfig[id] = value;
@@ -124,24 +91,12 @@ const colorOptions = [
     $gridConfig.set(currentConfig);
   };
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", (e) => {
-      const { id, checked } = e.target;
-      updateValue(id, checked);
-    });
-  });
-  numberFields.forEach((field) => {
-    field.addEventListener("input", (e) => {
-      const { id, value } = e.target;
-      updateValue(id, parseFloat(value));
-    });
-  });
   colorRadios.forEach((radio) => {
     radio.addEventListener("change", (e) => {
       const customColorInput = radio.parentElement.querySelector("[data-custom-color]");
       const { name, value } = e.target;
       let val = value;
-      if(value === 'custom'){
+      if (value === "custom") {
         val = customColorInput.value;
       }
       updateValue(name, val);

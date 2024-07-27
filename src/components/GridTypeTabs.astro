@@ -1,24 +1,18 @@
 ---
-import { type GridPageConfig } from "../../guideline-generator/GridMaker";
-import type {GridType} from "../../types/shared";
-import Fields from "../Fields.astro";
-import StaticGrid, { type GridConfig } from "../StaticGrid.astro";
-import TabArea from "./TabArea.astro";
-import TabDot from "./TabDot.astro";
-import TabGraph from "./TabGraph.astro";
-import TabLine from "./TabLine.astro";
+import { type GridPageConfig } from "../guideline-generator/GridMaker";
+import type { GridConfig, GridType } from "../types/shared";
+import Fields from "./Fields.astro";
+import StaticGrid from "./StaticGrid.astro";
 
 interface Props {
   svgId: string;
 }
 
-const { svgId } = Astro.props;
 type Tab = {
   name: string;
   id: string;
   gridType: GridType;
   selected?: boolean;
-  content: any;
   gridConfig: GridConfig;
 };
 
@@ -42,28 +36,24 @@ const tabs: Tab[] = [
     id: "calli-line",
     gridType: "line",
     selected: true,
-    content: TabLine,
     gridConfig: { ...gridConfigShared, xHeight: 4, areaBlockBuffer: 2 },
   },
   {
     name: "Calligraphy Area",
     id: "calli-area",
     gridType: "area",
-    content: TabArea,
     gridConfig: { ...gridConfigShared, xHeight: 10 },
   },
   {
     name: "Dot Grid",
     id: "dot",
     gridType: "dot",
-    content: TabDot,
     gridConfig: { ...gridConfigShared, dotSize: 1, cellSize: 5 },
   },
   {
     name: "Graph Grid",
     id: "graph",
     gridType: "graph",
-    content: TabGraph,
     gridConfig: { ...gridConfigShared, gridStrokeWidth: 0.4, cellSize: 5 },
   },
 ];
@@ -107,14 +97,15 @@ const tabs: Tab[] = [
         hidden={!tab.selected}
         data-tab-panel
       >
-        <Fields gridType={tab.gridType}></Fields>
+        <Fields gridType={tab.gridType} />
       </div>
     ))
   }
 </div>
 
 <script>
-  import { $currentGridType, $gridConfig } from "../../../store";
+  import { $currentGridType, $gridConfig } from "../../store";
+
   const tabs = document.querySelectorAll("[data-tab]");
   const panels = document.querySelectorAll("[data-tab-panel]");
   tabs.forEach((tab) => {
@@ -166,7 +157,7 @@ const tabs: Tab[] = [
         outline-offset: 2px;
       }
     }
-    
+
     &:hover {
       color: var(--c-interactive--hover);
       .grid-type__svg-preview {
@@ -174,14 +165,13 @@ const tabs: Tab[] = [
         outline-offset: 2px;
       }
     }
-    
+
     &:focus-visible {
       .grid-type__svg-preview {
         outline: var(--s-focus-outline-line) var(--focus-outline-style) var(--c-focus);
         outline-offset: var(--s-focus-outline-offset);
       }
     }
-
   }
 
   .grid-type__svg-preview {

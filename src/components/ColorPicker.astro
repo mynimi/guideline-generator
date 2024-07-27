@@ -1,0 +1,28 @@
+---
+import type { Props } from "./Field.astro";
+const { label, id, defaultValue, helperText } = Astro.props as Props;
+
+const colorOptions = [
+  { value: "#A4DDED", label: "non-photo blue" },
+  { value: "#b3b3b3", label: "30% Black" },
+  { value: "#808080", label: "50% Black" },
+  { value: "#000000", label: "Black" }
+];
+
+const dataListId = `presetColors-${id}`;
+---
+<label class="field">
+  <span>{label}</span>
+  <input
+    data-field
+    type="color"
+    list={dataListId}
+    id={id}
+    name={id}
+    value={defaultValue}
+  />
+  <datalist id={dataListId}>
+    {colorOptions.map((option) => <option title={option.label} aria-label={option.label}>{option.value}</option>)}
+  </datalist>
+  {helperText && <p>{helperText}</p>}
+</label>

@@ -196,7 +196,7 @@ const options:ConfigField[] = [
     id: 'lineColor',
     inputType: 'color',
     defaultValue: gridPageDefaults.color,
-    belongsTo: ['all'],
+    belongsTo: 'all',
     section: 'grid',
     level: 'minimal'
   },
@@ -234,7 +234,7 @@ const options:ConfigField[] = [
     level: 'balanced'
   },
   {
-    label: 'X-Height',
+    label: 'X-Height (mm)',
     id: 'xHeight',
     inputType: 'number',
     defaultValue: linePageDefaults.xHeight,
@@ -384,7 +384,7 @@ const isPartOfGrid = (option:ConfigField) => {
 }
 ---
 {sections.map(section => (
-  <details>
+  <details open>
     <summary>{section.title}</summary>
     {options.filter(option => option.section === section.id).map(option => (
       <Fragment>

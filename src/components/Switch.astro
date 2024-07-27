@@ -1,0 +1,31 @@
+---
+import type { BaseInput } from "./Field.astro";
+const { label, id, defaultValue, helperText } = Astro.props as BaseInput;
+---
+<div
+  class="field field--checkbox"
+>
+  <label>
+    <input
+      type="checkbox"
+      id={id}
+      checked={defaultValue}
+      data-checkbox
+    />
+    <span>{label}</span>
+  </label>
+  {helperText && <p>{helperText}</p>}
+</div>
+
+<script>
+  import { updateValue } from "./update-field";
+
+  const checkboxes = document.querySelectorAll("[data-checkbox]");
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", (e) => {
+      const { id, checked } = e.target;
+      updateValue(id, checked);
+    });
+  });
+</script>

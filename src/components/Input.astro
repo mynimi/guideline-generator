@@ -1,0 +1,37 @@
+---
+import type { Props } from "./Field.astro";
+const { inputType, label, id, defaultValue, helperText, min, step, max } = Astro.props as Props;
+---
+
+<label class:list={["field", `field--${inputType}`]} data-field>
+  <span>{label}</span>
+  <input
+    data-field
+    type={inputType}
+    id={id}
+    name={id}
+    value={defaultValue}
+    min={min}
+    step={step}
+    max={max}
+  />
+  {helperText && <p>{helperText}</p>}
+</label>
+
+<script>
+  import { updateValue } from "./update-field";
+
+  const fields = document.querySelectorAll("[data-field]");
+
+  fields.forEach((field) => {
+    field.addEventListener("change", (e) => {
+      const { id, value } = e.target;
+      const inputType = e.target.getAttribute("type");
+      if(inputType === "number") {
+        updateValue(id, parseFloat(value));
+      } else{
+        updateValue(id, value);
+      }
+    });
+  });
+</script>
