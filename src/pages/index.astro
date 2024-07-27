@@ -21,8 +21,8 @@ import Base from "../layouts/Base.astro";
           or use one of the two buttons below to download.
         </p>
         <p>Please note, that you are free to use these grids, but don't remove the Copyright information.</p>
-        <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
-        <div>
+        <p><small>this site uses Google Analytics. Leave if you don't want this data to be collected.</small></p>
+        <div class="outro">
           <button data-save-svg>Download SVG</button>
           <button data-download-pdf>Download PDF</button>
         </div>
@@ -109,6 +109,10 @@ import Base from "../layouts/Base.astro";
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--c-on-bg);
     margin-bottom: 2.5rem;
+  }
+
+  .outro {
+    margin-top: 2.5rem;
   }
 </style>
 
