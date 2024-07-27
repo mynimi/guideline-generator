@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/ts-plugin": "^1.9.0",
+    "astro-relative-links": "^0.3.9",
     "jspdf": "^2.5.1",
     "modern-normalize": "^2.0.0",
     "nanostores": "^0.10.3",
