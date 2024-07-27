@@ -1,5 +1,5 @@
 ---
-import Form from "../components/form/Form.astro";
+import GridTypeTabs from "../components/form/GridTypeTabs.astro";
 import Base from "../layouts/Base.astro";
 
 const svgId = "preview";
@@ -16,26 +16,23 @@ const svgId = "preview";
         </p>
         <p>Play with the options and see it change in real time.</p>
       </div>
-      <Form svgId={svgId} />
+      <GridTypeTabs svgId={svgId} />
       <div class="config__outro">
-        <h2>Export Quirks</h2>
-        <p>
-          The SVG with the area box creates a layer mask. This is not supported in PDF, thus depending on how you set up
-          your SVG, the export might have slight overlaps in the rounded corners.
-        </p>
-        <p>
-          The best way to get this sheet onto a page, is if you set up your page size like your print size and then
-          start a print command (CMD+P/Ctrl+P), which will only give you the generated result.
-        </p>
+        <h2>Export</h2>
+        <p>You can either print from this site directly using the Print Command (make sure document and page size match), or use one of the two buttons below to download.</p>
+        <p>Please note, that you are free to use these grids, but don't remove the Copyright information.</p>
         <p><small>this site uses google analytics. Leave if you don't want this data to be collected.</small></p>
         <div class="button-group">
-          <button id="downloadButton">Download SVG</button>
+          <button data-save-svg>Download SVG</button>
           <button data-download-pdf>Download PDF</button>
         </div>
       </div>
     </div>
     <div class="grid__preview">
       <div
+        role="img"
+        aria-label="Preview of the generated grid"
+        aria-live="polite"
         class="svg-wrapper"
         id={svgId}
         data-svg-preview
@@ -45,356 +42,82 @@ const svgId = "preview";
   </div>
 </Base>
 <script>
-  import { DotGridPage } from "../guideline-generator/old/DotGridPage";
-  import { CalligraphyLinePage } from "../guideline-generator/old/CalligraphyLinePage";
-  import { CalligraphyAreaPage } from "../guideline-generator/old/CalligraphyAreaPage";
-  import { GraphGridPage } from "../guideline-generator/old/GraphGridPage";
-  import { type FieldConfig } from "../guideline-generator/old/FieldConfig";
-  import {
-    allFieldSets,
-    minimalFormConfigLine,
-    minimalFormConfigArea,
-    minimalFormConfigDot,
-    minimalFormConfigGraph,
-    balancedFormConfigLine,
-    balancedFormConfigArea,
-    balancedFormConfigDot,
-    balancedFormConfigGraph,
-    maximalFormConfigLine,
-    maximalFormConfigArea,
-    maximalFormConfigDot,
-    maximalFormConfigGraph,
-  } from "../guideline-generator/old/formConfig";
-  import { saveSVGAsFile } from "../guideline-generator/old/saveSVG";
-  import { generatePDF } from "../guideline-generator/old/savePDF";
-  type GridType = "line" | "area" | "dot" | "graph";
-  type ConfigPersonality = "minimal" | "balanced" | "maximal";
+  import { CalligraphyAreaPage } from "../guideline-generator/CalligraphyAreaMaker";
+  import { CalligraphyLinePage } from "../guideline-generator/CalligraphyLineMaker";
+  import { DotGridPage } from "../guideline-generator/DotGridMaker";
+  import { GraphGridPage } from "../guideline-generator/GraphGridMaker";
+  import { $currentGridType, $gridConfig } from "../../store";
+  import { jsPDF } from "jspdf";
+  import { svg2pdf } from "svg2pdf.js";
 
-  const colorOptions = [
-    {
-      label: "non-photo blue",
-      value: "#A4DDED",
-    },
-    {
-      label: "30% Black",
-      value: "#b3b3b3",
-    },
-    {
-      label: "50% Black",
-      value: "#808080",
-    },
-    {
-      label: "Black",
-      value: "#000000",
-    },
-    {
-      label: "Custom (Enter Hexcode)",
-      value: "#ff0000",
-      isTextInput: true,
-    },
-  ];
+  let gridInstance = null;
 
-  const gridContainer = document.querySelector("[data-svg-preview]");
-  const gridPicker = document.querySelectorAll('input[name="grid-type"]');
-  const viewSwitch = document.querySelectorAll('input[name="config-type"]');
-  const fieldContainer = document.querySelector("[data-field-container]");
-  const downloadButton = document.getElementById("downloadButton");
-  const dlBtn = document.querySelector("[data-download-pdf]");
-
-  const gridConfig: GridPageConfig = {
-    container: gridContainer,
-  };
-
-  // these will be changing
-  let currentGridConfig = {};
-  let gridType!: GridType;
-  let gridInstance;
-  let viewType!: ConfigPersonality;
-
-  viewSwitch.forEach((input) => {
-    handleViewChange(input);
-    input.addEventListener("change", () => {
-      handleViewChange(input);
-    });
-  });
-
-  gridPicker.forEach((input) => {
-    handleGridChange(input);
-    input.addEventListener("change", () => {
-      handleGridChange(input);
-    });
-  });
-
-  downloadButton.addEventListener("click", function () {
-    saveSVGAsFile(gridInstance);
-  });
-
-  dlBtn?.addEventListener("click", () => {
-    generatePDF(gridInstance);
-  });
-
-  function initGrid(type) {
-    let newGrid;
-    const newGridConfig = {
-      ...gridConfig,
-      ...currentGridConfig,
-    };
-
-    if (gridInstance) {
-      killGrid();
-    }
-
+  const makeGrid = (type, config) => {
     switch (type) {
       case "line":
-        gridInstance = new CalligraphyLinePage(newGridConfig);
-        break;
+        return new CalligraphyLinePage(config);
       case "area":
-        gridInstance = new CalligraphyAreaPage(newGridConfig);
-        break;
+        return new CalligraphyAreaPage(config);
       case "dot":
-        gridInstance = new DotGridPage(newGridConfig);
-        break;
+        return new DotGridPage(config);
       case "graph":
-        gridInstance = new GraphGridPage(newGridConfig);
-        break;
-      default:
-        console.error("Invalid grid type");
-        break;
+        return new GraphGridPage(config);
     }
-    return newGrid;
-  }
+  };
 
-  function killGrid() {
-    gridInstance = undefined;
-    gridContainer.innerHTML = "";
-  }
+  const svgEl = document.querySelector("[data-svg-preview]");
+  const saveSVGButton = document.querySelector("[data-save-svg]");
+  const downloadPDFButton = document.querySelector("[data-download-pdf]");
 
-  function handleGridChange(input) {
-    if (input.checked) {
-      gridType = input.value;
-      initGrid(gridType);
-      renderFields(viewType);
-    }
-  }
+  $gridConfig.subscribe((config) => {
+    console.log("gridconfig updated");
+    if (!svgEl) return;
+    svgEl.innerHTML = "";
+    gridInstance = makeGrid($currentGridType.get(), config);
+    if (gridInstance) svgEl.appendChild(gridInstance.makeSVG());
+  });
 
-  function handleViewChange(input) {
-    if (input.checked) {
-      viewType = input.value;
-      renderFields(viewType);
-    }
-  }
+  $currentGridType.subscribe((gridType) => {
+    console.log("gridtype updated");
+    if (!svgEl) return;
+    svgEl.innerHTML = "";
+    gridInstance = makeGrid(gridType, $gridConfig.get());
+    if (gridInstance) svgEl.appendChild(gridInstance.makeSVG());
+  });
 
-  function renderFields(configPersonality: ConfigPersonality) {
-    if (!fieldContainer) {
-      console.error("Field container not found.");
-      return;
-    } else {
-      fieldContainer.innerHTML = "";
-    }
+  saveSVGButton.addEventListener("click", () => {
+    const svg = svgEl.querySelector("svg");
+    const svgString = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgString], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${gridInstance.fileName}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
-    const getConfig = (configType: ConfigPersonality, gridType: GridType): FieldConfig[] | null => {
-      const configMap: Record<ConfigPersonality, Record<GridType, FieldConfig[]>> = {
-        minimal: {
-          line: minimalFormConfigLine,
-          area: minimalFormConfigArea,
-          dot: minimalFormConfigDot,
-          graph: minimalFormConfigGraph,
-        },
-        balanced: {
-          line: balancedFormConfigLine,
-          area: balancedFormConfigArea,
-          dot: balancedFormConfigDot,
-          graph: balancedFormConfigGraph,
-        },
-        maximal: {
-          line: maximalFormConfigLine,
-          area: maximalFormConfigArea,
-          dot: maximalFormConfigDot,
-          graph: maximalFormConfigGraph,
-        },
-      };
+  downloadPDFButton.addEventListener("click", async () => {
+    const svg = svgEl.querySelector("svg");
+    if (!svg) return;
 
-      const selectedConfig = configMap[configType]?.[gridType];
-
-      if (selectedConfig) {
-        return selectedConfig;
-      } else {
-        // Return null or handle the case when configuration is not found
-        return null;
-      }
-    };
-
-    const currentConfig = getConfig(configPersonality, gridType);
-
-    if (currentConfig) {
-      createFieldSets(currentConfig, fieldContainer);
-    }
-  }
-
-  function createColorField(field) {
-    const colorFieldWrapper = document.createElement("fieldset");
-    const legend = document.createElement("legend");
-    const initValue = field.initValue;
-    colorFieldWrapper.classList.add("color-group");
-    legend.innerHTML = field.label;
-
-    colorFieldWrapper.appendChild(legend);
-
-    colorOptions.forEach((color) => {
-      const inputElement = document.createElement("input");
-      const labelEl = document.createElement("label");
-      const labelText = document.createElement("span");
-      labelText.style.setProperty("--_c", color.value);
-      labelText.innerText = color.label;
-
-      inputElement.setAttribute("type", "radio");
-      inputElement.setAttribute("name", field.configName);
-      inputElement.setAttribute("value", color.value);
-
-      if (color.value == initValue) {
-        inputElement.checked = true;
-      }
-
-      if (color.isTextInput) {
-        const customColorText = document.createElement("input");
-        customColorText.setAttribute("type", "text");
-        customColorText.setAttribute("name", `${field.configName}-custom`);
-        customColorText.setAttribute("aria-label", "Add Custom Color (in Hex Format)");
-        customColorText.setAttribute("pattern", "^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$");
-        customColorText.setAttribute("maxlength", "7");
-        customColorText.value = color.value;
-        labelText.appendChild(customColorText);
-
-        customColorText.addEventListener("change", () => {
-          const newValue = customColorText.value;
-          inputElement.value = newValue;
-          labelText.style.setProperty("--_c", newValue);
-          if (inputElement.checked) {
-            updateGridAndConfigBasedOnValue(newValue, initValue, field.configName, "color", undefined);
-          }
-        });
-      }
-
-      labelEl.appendChild(inputElement);
-      labelEl.appendChild(labelText);
-      colorFieldWrapper.appendChild(labelEl);
-
-      inputElement.addEventListener("change", () => {
-        updateGridAndConfigBasedOnValue(inputElement.value, initValue, field.configName, "color", undefined);
-      });
+    const width = gridInstance.width;
+    const height = gridInstance.height;
+    const orientation = width > height ? "landscape" : "portrait";
+    // Create a new jsPDF document
+    const doc = new jsPDF({
+      orientation: orientation,
+      unit: "mm",
+      format: [width, height],
     });
 
-    return colorFieldWrapper;
-  }
-
-  function groupFields(currentConfig) {
-    const groupedFields = {};
-    currentConfig.forEach((item) => {
-      const { fieldset, ...rest } = item;
-      if (!groupedFields[fieldset]) {
-        groupedFields[fieldset] = {
-          fieldsetInfo: allFieldSets.find((group) => group.id === fieldset),
-          fields: [],
-        };
-      }
-      groupedFields[fieldset].fields.push(rest);
-    });
-    return groupedFields;
-  }
-
-  function createFieldSets(currentConfig, parentEl) {
-    const groupedFields = groupFields(currentConfig);
-    Object.keys(groupedFields).forEach((fieldsetId) => {
-      const group = groupedFields[fieldsetId];
-      const fieldSetEl = document.createElement("fieldset");
-      const legendEl = document.createElement("legend");
-      legendEl.innerHTML = group.fieldsetInfo.label;
-      fieldSetEl.appendChild(legendEl);
-      parentEl.appendChild(fieldSetEl);
-
-      group.fields.forEach((field) => {
-        createField(field, fieldSetEl);
+    doc
+      .svg(svg as Element, {
+        width: width,
+        height: height,
+      })
+      .then(() => {
+        doc.save(`${gridInstance.fileName}.pdf`);
       });
-    });
-  }
-
-  function createField(field, parentEl) {
-    const fieldWrapper = document.createElement("div");
-    const label = document.createElement("label");
-    const labelText = document.createElement("span");
-    const helperTextEl = document.createElement("p");
-    label.classList.add("field");
-    label.classList.add(`field--${field.inputType}`);
-    labelText.innerText = field.label;
-
-    if (field.inputType === "color") {
-      const colorField = createColorField(field);
-      label.appendChild(colorField);
-    } else {
-      const inputElement = document.createElement("input");
-      inputElement.setAttribute("type", field.inputType);
-      inputElement.setAttribute("name", field.configName);
-      inputElement.setAttribute("value", field.initValue || "");
-
-      if (field.helperText) {
-        const helperTextId = field.configName + "HelperText";
-        inputElement.setAttribute("aria-describedby", helperTextId);
-        helperTextEl.id = helperTextId;
-        helperTextEl.innerHTML = field.helperText;
-      }
-
-      if (field.inputType === "checkbox") {
-        if (field.initValue === true) {
-          inputElement.checked = true;
-        }
-        label.appendChild(inputElement);
-        label.appendChild(labelText);
-      } else {
-        if (field.max) {
-          inputElement.setAttribute("max", field.max);
-        }
-        if (field.min) {
-          inputElement.setAttribute("min", field.min);
-        }
-        if (field.step) {
-          inputElement.setAttribute("step", field.step);
-        }
-        label.appendChild(labelText);
-        label.appendChild(inputElement);
-      }
-
-      inputElement.addEventListener("change", () => {
-        const fieldValue = field.inputType == "checkbox" ? inputElement.checked : inputElement.value;
-        updateGridAndConfigBasedOnValue(
-          fieldValue,
-          field.initValue,
-          field.configName,
-          field.inputType,
-          field.arraySeparator
-        );
-      });
-    }
-
-    fieldWrapper.appendChild(label);
-    if (field.helperText) {
-      fieldWrapper.appendChild(helperTextEl);
-    }
-    parentEl.appendChild(fieldWrapper);
-  }
-
-  function updateGridAndConfigBasedOnValue(value, initValue, configName, inputType, separator) {
-    let val = value;
-    if (inputType === "number") {
-      val = parseFloat(value);
-    }
-    if (separator && inputType === "numberArray") {
-      val = value.split(separator).map(Number);
-    }
-    if (val !== initValue) {
-      currentGridConfig[configName] = val;
-    } else {
-      delete currentGridConfig[configName];
-    }
-    initGrid(gridType);
-  }
+  });
 </script>

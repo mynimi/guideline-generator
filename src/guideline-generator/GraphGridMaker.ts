@@ -3,7 +3,6 @@ import {
   type GridPageBasicOptions,
   type GridPageExtendedOptions,
   type GridPageTechnicalOptions,
-  type OutputType as OutputType,
   type RequiredFields,
 } from "./GridMaker";
 
@@ -25,6 +24,10 @@ export class GraphGridPage extends GridMaker {
   #config: RequiredFields<GraphGridPageConfig>;
   #prettyName: string;
   #fileName: string;
+
+  get graphDefaultValues(): RequiredFields<GraphGridPageConfig> {
+    return this.#defaults;
+  }
 
   constructor(options: Partial<GraphGridPageConfig> = {}) {
     super(options);

@@ -19,7 +19,6 @@ export interface GridPageExtendedOptions {
 
 export interface GridPageTechnicalOptions {
   coordinateDecimalPlaceMax?: number;
-  container: Element | null;
   textFontSize?: number;
   textLineHeight?: number;
 }
@@ -33,7 +32,6 @@ export type GridPageConfig = GridPageBasicOptions & GridPageExtendedOptions & Gr
 export class GridMaker {
   #defaults: RequiredFields<GridPageConfig>;
   #config: RequiredFields<GridPageConfig>;
-  #svg!: SVGElement | string;
   #prettyName: string = this.generateGridName("pretty");
   #fileName: string = this.generateGridName("file");
   readonly #defaultStrokeSize: number = 0.2;
@@ -125,7 +123,6 @@ export class GridMaker {
       areaBorderRadius: 5,
       areaStrokeWidth: this.#defaultStrokeSize,
       areaStrokeColor: this.#defaultStrokeColor,
-      container: null,
       coordinateDecimalPlaceMax: 2,
       textFontSize: 4,
       textLineHeight: 1.2,
@@ -172,7 +169,7 @@ export class GridMaker {
         <g 
           ${className ? `class="${className}"` : ""} 
           ${idName ? `id="${idName}"` : ""} 
-          ${maskId ? `mask="url(#${maskId})"` : ""}
+          ${maskId ? `clip-path="url(#${maskId})"` : ""}
         >`;
   }
 
@@ -327,9 +324,11 @@ export class GridMaker {
     const maskId = this.generateUniqueId("mask");
     this.maskId = maskId;
     return /*html*/ `
-        <mask id="${maskId}">
+      <defs>
+        <clipPath id="${maskId}">
           ${this.addRectangle("white", "black")}
-        </mask>
+        </clipPath>
+      </defs>
       `;
   }
 

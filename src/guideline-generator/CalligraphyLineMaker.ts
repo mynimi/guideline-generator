@@ -3,7 +3,6 @@ import {
   type GridPageBasicOptions,
   type GridPageExtendedOptions,
   type GridPageTechnicalOptions,
-  type OutputType,
   type RequiredFields,
 } from "./GridMaker";
 
@@ -38,6 +37,10 @@ export class CalligraphyLinePage extends GridMaker {
   #prettyName: string;
   #fileName: string;
 
+  get calligraphyLineDefaultValues(): RequiredFields<CalligraphyLinePageConfig> {
+    return this.#defaults;
+  }
+  
   get lineHeight(): number {
     const { ascender, base, descender } = this.normalizedRatio;
     return this.xHeight * (ascender + base + descender);

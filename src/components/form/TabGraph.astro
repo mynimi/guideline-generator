@@ -1,0 +1,12 @@
+---
+import Fields from '../Fields.astro';
+
+interface Props {
+  svgId: string;
+}
+
+const { svgId } = Astro.props;
+---
+<div data-line-grid-preview-id={svgId}>
+<Fields gridType='graph'></Fields>
+</div>

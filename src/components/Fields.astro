@@ -1,0 +1,407 @@
+---
+import {CalligraphyAreaPage} from '../guideline-generator/CalligraphyAreaMaker';
+import {CalligraphyLinePage} from '../guideline-generator/CalligraphyLineMaker';
+import {DotGridPage} from '../guideline-generator/DotGridMaker';
+import {GraphGridPage} from '../guideline-generator/GraphGridMaker';
+import {GridMaker} from '../guideline-generator/GridMaker';
+import type {GridType} from '../types/shared';
+import type {Props as FieldProps} from './Field.astro';
+import Field from './Field.astro';
+
+interface Props {
+  gridType: GridType;
+}
+const { gridType } = Astro.props;
+const gridPage = new GridMaker();
+const graphPage = new GraphGridPage();
+const dotPage = new DotGridPage();
+const calligraphyLinePage = new CalligraphyLinePage();
+const calligraphyAreaPage = new CalligraphyAreaPage();
+const gridPageDefaults = gridPage.defaultValues;
+const graphPageDefaults = graphPage.graphDefaultValues;
+const dotPageDefaults = dotPage.dotDefaultValues;
+const linePageDefaults = calligraphyLinePage.calligraphyLineDefaultValues;
+const areaPageDefaults = calligraphyAreaPage.calligraphyAreaDefaultValues;
+
+type section = 'document' | 'area-box' | 'general' | 'grid';
+
+type SectionConfig = {
+  id: section;
+  title: string;
+}
+
+interface ConfigField extends FieldProps {
+  section: section;
+  belongsTo: 'all' | GridType | GridType[];
+}
+
+const sections:SectionConfig[] = [
+  {
+    id: 'general',
+    title: 'General',
+  },
+  {
+    id: 'grid',
+    title: 'Grid',
+  },
+  { 
+    id: 'document',
+    title: 'Document',
+  },
+  {
+    id: 'area-box',
+    title: 'Area Box',
+  },
+]
+/* Each of those fields is matching up to the Config Interfaces of the types */
+
+const options:ConfigField[] = [
+  {
+    label: 'Document Width (mm)',
+    id: 'documentWidth',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentWidth,
+    min: 0,
+    step: 10,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'minimal'
+  },
+  {
+    label: 'Document Height (mm)',
+    id: 'documentHeight',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentHeight,
+    min: 0,
+    step: 10,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'minimal'
+  },
+  {
+    label: 'Document Margin Top (mm)',
+    id: 'documentMarginTop',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentMarginTop,
+    min: 0,
+    step: 1,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'maximal'
+  },
+  {
+    label: 'Document Margin Bottom (mm)',
+    id: 'documentMarginBottom',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentMarginBottom,
+    min: 0,
+    step: 1,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'maximal'
+  },
+  {
+    label: 'Document Margin Left (mm)',
+    id: 'documentMarginLeft',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentMarginLeft,
+    min: 0,
+    step: 1,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'maximal'
+  },
+  {
+    label: 'Document Margin Right (mm)',
+    id: 'documentMarginRight',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.documentMarginRight,
+    min: 0,
+    step: 1,
+    belongsTo: 'all',
+    section: 'document',
+    level: 'maximal'
+  },
+  {
+    label: 'Add Area Box',
+    id: 'addAreaBox',
+    inputType: 'checkbox',
+    defaultValue: gridPageDefaults.addAreaBox,
+    belongsTo: 'all',
+    section: 'area-box',
+    level: 'maximal'
+  },
+  {
+    label: 'Area Stroke',
+    id: 'areaStrokeWidth',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.areaStrokeWidth,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'all',
+    section: 'area-box',
+    level: 'maximal'
+  },
+  {
+    label: 'Area Border Radius',
+    id: 'areaBorderRadius',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.areaBorderRadius,
+    min: 0,
+    step: 1,
+    belongsTo: 'all',
+    section: 'area-box',
+    level: 'maximal'
+  },
+  {
+    label: 'Area Stroke Color',
+    id: 'areaStrokeColor',
+    inputType: 'color',
+    defaultValue: gridPageDefaults.areaStrokeColor,
+    belongsTo: 'all',
+    section: 'area-box',
+    level: 'maximal'
+  },
+  {
+    label: 'Color',
+    id: 'color',
+    inputType: 'color',
+    defaultValue: gridPageDefaults.color,
+    belongsTo: 'all',
+    section: 'general',
+    level: 'minimal'
+  },
+  {
+    label: 'Stroke',
+    id: 'stroke',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.stroke,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'all',
+    section: 'general',
+    level: 'minimal'
+  },
+  {
+    label: 'Add Title',
+    id: 'addTitle',
+    inputType: 'checkbox',
+    defaultValue: gridPageDefaults.addTitle,
+    belongsTo: 'all',
+    section: 'general',
+    level: 'maximal'
+  },
+  {
+    label: 'Line Color',
+    id: 'lineColor',
+    inputType: 'color',
+    defaultValue: gridPageDefaults.color,
+    belongsTo: ['all'],
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Cell Size (mm)',
+    id: 'cellSize',
+    inputType: 'number',
+    defaultValue: graphPageDefaults.cellSize,
+    min: 0,
+    step: 1,
+    belongsTo: ['graph', 'dot'],
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Grid Stroke Width',
+    id: 'gridStrokeWidth',
+    inputType: 'number',
+    defaultValue: gridPageDefaults.stroke,
+    min: 0,
+    step: 0.1,
+    belongsTo: ['graph', 'line', 'area'],
+    section: 'grid',
+    level: 'balanced'
+  },
+  {
+    label: 'Dot Size',
+    id: 'dotSize',
+    inputType: 'number',
+    defaultValue: dotPageDefaults.dotSize,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'dot',
+    section: 'grid',
+    level: 'balanced'
+  },
+  {
+    label: 'X-Height',
+    id: 'xHeight',
+    inputType: 'number',
+    defaultValue: linePageDefaults.xHeight,
+    min: 0,
+    step: 0.1,
+    belongsTo: ['line', 'area'],
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Ratio Ascender',
+    id: 'ratioAscender',
+    inputType: 'number',
+    defaultValue: linePageDefaults.ratioAscender,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Ratio Base',
+    id: 'ratioBase',
+    inputType: 'number',
+    defaultValue: linePageDefaults.ratioBase,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Ratio Descender',
+    id: 'ratioDescender',
+    inputType: 'number',
+    defaultValue: linePageDefaults.ratioDescender,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Slant Angle',
+    id: 'slantAngle',
+    inputType: 'number',
+    defaultValue: linePageDefaults.slantAngle,
+    min: 0,
+    step: 5,
+    max: 90,
+    belongsTo: ['line', 'area'],
+    section: 'grid',
+    level: 'minimal'
+  },
+  {
+    label: 'Grid Base Line Stroke Width',
+    id: 'gridBaseLineStrokeWidth',
+    inputType: 'number',
+    defaultValue: linePageDefaults.gridBaseLineStrokeWidth,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'balanced'
+  },
+  {
+    label: 'Area Block Buffer',
+    id: 'areaBlockBuffer',
+    inputType: 'number',
+    defaultValue: linePageDefaults.areaBlockBuffer,
+    min: 0,
+    step: 1,
+    belongsTo: 'line',
+    section: 'area-box',
+    level: 'maximal'
+  },
+  {
+    label: 'show X-Height Indicator',
+    id: 'showXHeightIndicator',
+    inputType: 'checkbox',
+    defaultValue: linePageDefaults.showXHeightIndicator,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'maximal'
+  },
+  {
+    label: 'X-Height Indicator Stroke Width',
+    id: 'xHeightIndicatorStrokeWidth',
+    inputType: 'number',
+    defaultValue: linePageDefaults.xHeightIndicatorStrokeWidth,
+    min: 0,
+    step: 0.1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'maximal'
+  },
+  {
+    label: 'Slant Lines Per Line',
+    id: 'slantLinesPerLine',
+    inputType: 'number',
+    defaultValue: linePageDefaults.slantLinesPerLine,
+    min: 0,
+    step: 1,
+    belongsTo: 'line',
+    section: 'grid',
+    level: 'maximal'
+  },
+  {
+    label: 'Add Divider Lines',
+    id: 'addDividerLines',
+    inputType: 'checkbox',
+    defaultValue: linePageDefaults.addDividerLines,
+    belongsTo: ['line', 'area'],
+    section: 'grid',
+    level: 'maximal'
+  },
+  {
+    label: 'Slant Angle Gap',
+    id: 'slantAngleGap',
+    inputType: 'number',
+    defaultValue: areaPageDefaults.slantAngleGap,
+    min: 0,
+    step: 5,
+    belongsTo: 'area',
+    section: 'grid',
+    level: 'maximal'
+  },
+  {
+    label: 'Slant Line Min Length (mm)',
+    id: 'slantLineMinLength',
+    inputType: 'number',
+    defaultValue: areaPageDefaults.slantLineMinLength,
+    min: 0,
+    step: 1,
+    belongsTo: 'area',
+    section: 'grid',
+    level: 'maximal'
+  }
+];
+
+const isPartOfGrid = (option:ConfigField) => {
+  if(option.belongsTo === 'all') return true;
+  if(Array.isArray(option.belongsTo)){
+    return option.belongsTo.includes(gridType);
+  }
+  return option.belongsTo === gridType;
+}
+---
+{sections.map(section => (
+  <div>
+    <h2>{section.title}</h2>
+    {options.filter(option => option.section === section.id).map(option => (
+      <Fragment>
+        {(isPartOfGrid(option)) && (
+          <Field
+            label={option.label}
+            helperText={option.helperText}
+            id={option.id}
+            inputType={option.inputType}
+            defaultValue={option.defaultValue}
+            level={option.level}
+            min={option.min}
+            step={option.step}
+            max={option.max}
+          ></Field>
+        )}
+      </Fragment>
+    ))}
+  </div>
+))}

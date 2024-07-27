@@ -1,0 +1,194 @@
+---
+import { type GridPageConfig } from "../../guideline-generator/GridMaker";
+import type {GridType} from "../../types/shared";
+import Fields from "../Fields.astro";
+import StaticGrid, { type GridConfig } from "../StaticGrid.astro";
+import TabArea from "./TabArea.astro";
+import TabDot from "./TabDot.astro";
+import TabGraph from "./TabGraph.astro";
+import TabLine from "./TabLine.astro";
+
+interface Props {
+  svgId: string;
+}
+
+const { svgId } = Astro.props;
+type Tab = {
+  name: string;
+  id: string;
+  gridType: GridType;
+  selected?: boolean;
+  content: any;
+  gridConfig: GridConfig;
+};
+
+const gridConfigShared: GridPageConfig = {
+  documentWidth: 40,
+  documentHeight: 40,
+  documentMarginTop: 2,
+  documentMarginBottom: 0,
+  documentMarginLeft: 2,
+  documentMarginRight: 2,
+  areaBorderRadius: 3,
+  addTitle: false,
+  textFontSize: 0,
+  textLineHeight: 0,
+  color: "var(--_c-svg)",
+};
+
+const tabs: Tab[] = [
+  {
+    name: "Calligraphy Line",
+    id: "calli-line",
+    gridType: "line",
+    selected: true,
+    content: TabLine,
+    gridConfig: { ...gridConfigShared, xHeight: 4, areaBlockBuffer: 2 },
+  },
+  {
+    name: "Calligraphy Area",
+    id: "calli-area",
+    gridType: "area",
+    content: TabArea,
+    gridConfig: { ...gridConfigShared, xHeight: 10 },
+  },
+  {
+    name: "Dot Grid",
+    id: "dot",
+    gridType: "dot",
+    content: TabDot,
+    gridConfig: { ...gridConfigShared, dotSize: 1, cellSize: 5 },
+  },
+  {
+    name: "Graph Grid",
+    id: "graph",
+    gridType: "graph",
+    content: TabGraph,
+    gridConfig: { ...gridConfigShared, gridStrokeWidth: 0.4, cellSize: 5 },
+  },
+];
+---
+
+<div class="grid-type">
+  <div
+    class="grid-type__tab-wrap"
+    role="tablist"
+    aria-label="Choose Grid Type"
+  >
+    {
+      tabs.map((tab) => (
+        <button
+          data-tab
+          class="grid-type__tab"
+          role="tab"
+          aria-selected={tab.selected}
+          aria-controls={`grid-type-${tab.id}`}
+          data-grid-type={tab.gridType}
+          tabindex="0"
+        >
+          <div class="grid-type__svg-preview">
+            <StaticGrid
+              gridType={tab.gridType}
+              gridConfig={tab.gridConfig}
+            />
+          </div>
+          <span class="grid-type__label">{tab.name}</span>
+        </button>
+      ))
+    }
+  </div>
+  {
+    tabs.map((tab) => (
+      <div
+        class="grid-type__panel"
+        id={`grid-type-${tab.id}`}
+        role="tabpanel"
+        aria-labelledby={`grid-type-${tab.id}`}
+        hidden={!tab.selected}
+        data-tab-panel
+      >
+        <Fields gridType={tab.gridType}></Fields>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { $currentGridType, $gridConfig } from "../../../store";
+  const tabs = document.querySelectorAll("[data-tab]");
+  const panels = document.querySelectorAll("[data-tab-panel]");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const panelId = tab.getAttribute("aria-controls");
+      const panel = document.getElementById(panelId);
+      const gridType = tab.getAttribute("data-grid-type");
+      tabs.forEach((t) => {
+        t.setAttribute("aria-selected", "false");
+      });
+      panels.forEach((panel) => {
+        panel.setAttribute("hidden", "");
+      });
+      tab.setAttribute("aria-selected", "true");
+      panel.removeAttribute("hidden");
+      $currentGridType.set(gridType);
+      $gridConfig.set({});
+    });
+  });
+</script>
+
+<style lang="scss">
+  .grid-type__tab-wrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1em;
+  }
+
+  .grid-type__tab {
+    --_c-svg: var(--c-on-bg);
+    --_c-svg-bg: var(--c-bg);
+
+    appearance: none;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-family: "Victor Mono", monospace;
+    font-size: 0.8em;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &[aria-selected="true"] {
+      color: var(--c-interactive--active);
+      .grid-type__svg-preview {
+        outline: 2px solid var(--c-interactive--active);
+        outline-offset: 2px;
+      }
+    }
+    
+    &:hover {
+      color: var(--c-interactive--hover);
+      .grid-type__svg-preview {
+        outline: 1px solid var(--c-interactive--hover);
+        outline-offset: 2px;
+      }
+    }
+    
+    &:focus-visible {
+      .grid-type__svg-preview {
+        outline: var(--s-focus-outline-line) var(--focus-outline-style) var(--c-focus);
+        outline-offset: var(--s-focus-outline-offset);
+      }
+    }
+
+  }
+
+  .grid-type__svg-preview {
+    background: var(--_c-svg-bg);
+    margin-bottom: 0.7em;
+    width: 100%;
+  }
+  .grid-type__label {
+  }
+</style>

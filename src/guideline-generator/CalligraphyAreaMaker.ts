@@ -3,7 +3,6 @@ import {
   type GridPageBasicOptions,
   type GridPageExtendedOptions,
   type GridPageTechnicalOptions,
-  type OutputType,
   type RequiredFields,
 } from "./GridMaker";
 
@@ -36,6 +35,10 @@ export class CalligraphyAreaPage extends GridMaker {
   #config: RequiredFields<CalligraphyAreaPageConfig>;
   #prettyName: string;
   #fileName: string;
+
+  get calligraphyAreaDefaultValues(): RequiredFields<CalligraphyAreaPageConfig> {
+    return this.#defaults;
+  }
 
   constructor(options: Partial<CalligraphyAreaPageConfig> = {}) {
     super(options);

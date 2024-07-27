@@ -3,7 +3,6 @@ import {
   type GridPageBasicOptions,
   type GridPageExtendedOptions,
   type GridPageTechnicalOptions,
-  type OutputType,
   type RequiredFields,
 } from "./GridMaker";
 
@@ -26,6 +25,10 @@ export class DotGridPage extends GridMaker {
   #prettyName: string;
   #fileName: string;
 
+  get dotDefaultValues(): RequiredFields<DotGridPageConfig> {
+    return this.#defaults;
+  }
+  
   constructor(options: Partial<DotGridPageConfig> = {}) {
     super(options);
     const parentDefaults = this.defaultValues;
