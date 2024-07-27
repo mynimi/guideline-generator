@@ -141,7 +141,6 @@ import Base from "../layouts/Base.astro";
   const downloadPDFButton = document.querySelector("[data-download-pdf]");
 
   $gridConfig.subscribe((config) => {
-    console.log("gridconfig updated");
     if (!svgEl) return;
     svgEl.innerHTML = "";
     gridInstance = makeGrid($currentGridType.get(), config);
@@ -149,7 +148,6 @@ import Base from "../layouts/Base.astro";
   });
 
   $currentGridType.subscribe((gridType) => {
-    console.log("gridtype updated");
     if (!svgEl) return;
     svgEl.innerHTML = "";
     gridInstance = makeGrid(gridType, $gridConfig.get());
