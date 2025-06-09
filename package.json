@@ -11,16 +11,16 @@
   },
   "dependencies": {
     "@astrojs/ts-plugin": "^1.9.0",
-    "astro-relative-links": "^0.3.9",
-    "jspdf": "^2.5.1",
+    "astro-relative-links": "^0.4.2",
+    "jspdf": "^3.0.1",
     "modern-normalize": "^2.0.0",
     "nanostores": "^0.10.3",
     "svg2pdf.js": "^2.2.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.8.2",
-    "astro": "^4.12.2",
-    "calligraphy-grids": "^0.1.0",
+    "astro": "^5.9.1",
+    "calligraphy-grids": "^1.0.0",
     "sass": "^1.77.8",
     "typescript": "^5.5.3"
   }

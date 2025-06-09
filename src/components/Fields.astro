@@ -234,8 +234,8 @@ const options:ConfigField[] = [
     id: 'xHeight',
     inputType: 'number',
     defaultValue: linePageDefaults.xHeight,
-    min: 0,
-    step: 0.1,
+    min: 2,
+    step: 1,
     belongsTo: ['line', 'area'],
     section: 'grid',
     level: 'minimal'
@@ -246,7 +246,7 @@ const options:ConfigField[] = [
     inputType: 'number',
     defaultValue: linePageDefaults.ratioAscender,
     min: 0,
-    step: 0.1,
+    step: 1,
     belongsTo: 'line',
     section: 'grid',
     level: 'minimal'
@@ -257,7 +257,7 @@ const options:ConfigField[] = [
     inputType: 'number',
     defaultValue: linePageDefaults.ratioBase,
     min: 0,
-    step: 0.1,
+    step: 1,
     belongsTo: 'line',
     section: 'grid',
     level: 'minimal'
@@ -268,7 +268,7 @@ const options:ConfigField[] = [
     inputType: 'number',
     defaultValue: linePageDefaults.ratioDescender,
     min: 0,
-    step: 0.1,
+    step: 1,
     belongsTo: 'line',
     section: 'grid',
     level: 'minimal'
