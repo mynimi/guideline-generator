@@ -20,7 +20,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.8.2",
     "astro": "^5.9.1",
-    "calligraphy-grids": "^1.0.0",
+    "calligraphy-grids": "^1.0.2",
     "sass": "^1.77.8",
     "typescript": "^5.5.3"
   }
